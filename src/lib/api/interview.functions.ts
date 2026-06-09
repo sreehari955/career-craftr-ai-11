@@ -138,10 +138,10 @@ export const scoreAnswer = createServerFn({ method: "POST" })
         prompt: `Question (${q.type}): ${q.question}\nWhat interviewer wants: ${q.hint}\n\nCandidate's answer:\n${data.answer_text}`,
         experimental_output: Output.object({ schema: FeedbackSchema }),
       });
-      const feedback = Array.isArray(s.feedback) ? [...(s.feedback as unknown[])] : [];
+      const feedback: unknown[] = Array.isArray(s.feedback) ? [...(s.feedback as unknown[])] : [];
       while (feedback.length <= data.question_index) feedback.push(null);
       feedback[data.question_index] = experimental_output;
-      await context.supabase.from("interview_sessions").update({ feedback }).eq("id", data.session_id).eq("user_id", context.userId);
+      await context.supabase.from("interview_sessions").update({ feedback: feedback as never }).eq("id", data.session_id).eq("user_id", context.userId);
       return experimental_output;
     } catch (e) { handleAIError(e); }
   });
