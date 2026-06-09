@@ -28,7 +28,7 @@ function ProfilePage() {
   useEffect(() => { if (data) setForm(data); }, [data]);
 
   const mut = useMutation({
-    mutationFn: async (vals: Partial<Profile>) => saveProfile({ data: { ...vals, onboarded: true } as Parameters<typeof saveProfile>[0]["data"] }),
+    mutationFn: async (vals: Partial<Profile>) => saveProfile({ data: { ...vals, onboarded: true } as never }),
     onSuccess: () => { toast.success("Profile saved"); qc.invalidateQueries({ queryKey: ["profile"] }); },
     onError: (e: Error) => toast.error(e.message),
   });
