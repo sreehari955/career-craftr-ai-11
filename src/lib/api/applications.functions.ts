@@ -38,8 +38,7 @@ export const updateApplicationStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid(), status: Status }).parse(d))
   .handler(async ({ data, context }) => {
-    const patch: Record<string, unknown> = { status: data.status };
-    if (data.status === "applied") patch.applied_at = new Date().toISOString();
+    const patch = { status: data.status, ...(data.status === "applied" ? { applied_at: new Date().toISOString() } : {}) };
     const { error } = await context.supabase.from("applications").update(patch).eq("id", data.id).eq("user_id", context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };
