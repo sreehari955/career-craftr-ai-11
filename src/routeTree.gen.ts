@@ -22,8 +22,13 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedJobsRouteImport } from './routes/_authenticated/jobs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCoverLettersRouteImport } from './routes/_authenticated/cover-letters'
+import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
 import { Route as AuthenticatedResumesIndexRouteImport } from './routes/_authenticated/resumes.index'
+import { Route as AuthenticatedInterviewIndexRouteImport } from './routes/_authenticated/interview.index'
+import { Route as ApiPublicRunJobAlertsRouteImport } from './routes/api/public/run-job-alerts'
 import { Route as AuthenticatedResumesIdRouteImport } from './routes/_authenticated/resumes.$id'
+import { Route as AuthenticatedResumeHistoryIdRouteImport } from './routes/_authenticated/resume-history.$id'
+import { Route as AuthenticatedInterviewIdRouteImport } from './routes/_authenticated/interview.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -90,17 +95,45 @@ const AuthenticatedCoverLettersRoute =
     path: '/cover-letters',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAlertsRoute = AuthenticatedAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedResumesIndexRoute =
   AuthenticatedResumesIndexRouteImport.update({
     id: '/resumes/',
     path: '/resumes/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedInterviewIndexRoute =
+  AuthenticatedInterviewIndexRouteImport.update({
+    id: '/interview/',
+    path: '/interview/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const ApiPublicRunJobAlertsRoute = ApiPublicRunJobAlertsRouteImport.update({
+  id: '/api/public/run-job-alerts',
+  path: '/api/public/run-job-alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedResumesIdRoute = AuthenticatedResumesIdRouteImport.update({
   id: '/resumes/$id',
   path: '/resumes/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedResumeHistoryIdRoute =
+  AuthenticatedResumeHistoryIdRouteImport.update({
+    id: '/resume-history/$id',
+    path: '/resume-history/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInterviewIdRoute =
+  AuthenticatedInterviewIdRouteImport.update({
+    id: '/interview/$id',
+    path: '/interview/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -110,12 +143,17 @@ export interface FileRoutesByFullPath {
   '/features': typeof FeaturesRoute
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/alerts': typeof AuthenticatedAlertsRoute
   '/cover-letters': typeof AuthenticatedCoverLettersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/jobs': typeof AuthenticatedJobsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/tracker': typeof AuthenticatedTrackerRoute
+  '/interview/$id': typeof AuthenticatedInterviewIdRoute
+  '/resume-history/$id': typeof AuthenticatedResumeHistoryIdRoute
   '/resumes/$id': typeof AuthenticatedResumesIdRoute
+  '/api/public/run-job-alerts': typeof ApiPublicRunJobAlertsRoute
+  '/interview/': typeof AuthenticatedInterviewIndexRoute
   '/resumes/': typeof AuthenticatedResumesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -126,12 +164,17 @@ export interface FileRoutesByTo {
   '/features': typeof FeaturesRoute
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/alerts': typeof AuthenticatedAlertsRoute
   '/cover-letters': typeof AuthenticatedCoverLettersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/jobs': typeof AuthenticatedJobsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/tracker': typeof AuthenticatedTrackerRoute
+  '/interview/$id': typeof AuthenticatedInterviewIdRoute
+  '/resume-history/$id': typeof AuthenticatedResumeHistoryIdRoute
   '/resumes/$id': typeof AuthenticatedResumesIdRoute
+  '/api/public/run-job-alerts': typeof ApiPublicRunJobAlertsRoute
+  '/interview': typeof AuthenticatedInterviewIndexRoute
   '/resumes': typeof AuthenticatedResumesIndexRoute
 }
 export interface FileRoutesById {
@@ -144,12 +187,17 @@ export interface FileRoutesById {
   '/features': typeof FeaturesRoute
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
   '/_authenticated/cover-letters': typeof AuthenticatedCoverLettersRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/jobs': typeof AuthenticatedJobsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/tracker': typeof AuthenticatedTrackerRoute
+  '/_authenticated/interview/$id': typeof AuthenticatedInterviewIdRoute
+  '/_authenticated/resume-history/$id': typeof AuthenticatedResumeHistoryIdRoute
   '/_authenticated/resumes/$id': typeof AuthenticatedResumesIdRoute
+  '/api/public/run-job-alerts': typeof ApiPublicRunJobAlertsRoute
+  '/_authenticated/interview/': typeof AuthenticatedInterviewIndexRoute
   '/_authenticated/resumes/': typeof AuthenticatedResumesIndexRoute
 }
 export interface FileRouteTypes {
@@ -162,12 +210,17 @@ export interface FileRouteTypes {
     | '/features'
     | '/pricing'
     | '/sitemap.xml'
+    | '/alerts'
     | '/cover-letters'
     | '/dashboard'
     | '/jobs'
     | '/profile'
     | '/tracker'
+    | '/interview/$id'
+    | '/resume-history/$id'
     | '/resumes/$id'
+    | '/api/public/run-job-alerts'
+    | '/interview/'
     | '/resumes/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -178,12 +231,17 @@ export interface FileRouteTypes {
     | '/features'
     | '/pricing'
     | '/sitemap.xml'
+    | '/alerts'
     | '/cover-letters'
     | '/dashboard'
     | '/jobs'
     | '/profile'
     | '/tracker'
+    | '/interview/$id'
+    | '/resume-history/$id'
     | '/resumes/$id'
+    | '/api/public/run-job-alerts'
+    | '/interview'
     | '/resumes'
   id:
     | '__root__'
@@ -195,12 +253,17 @@ export interface FileRouteTypes {
     | '/features'
     | '/pricing'
     | '/sitemap.xml'
+    | '/_authenticated/alerts'
     | '/_authenticated/cover-letters'
     | '/_authenticated/dashboard'
     | '/_authenticated/jobs'
     | '/_authenticated/profile'
     | '/_authenticated/tracker'
+    | '/_authenticated/interview/$id'
+    | '/_authenticated/resume-history/$id'
     | '/_authenticated/resumes/$id'
+    | '/api/public/run-job-alerts'
+    | '/_authenticated/interview/'
     | '/_authenticated/resumes/'
   fileRoutesById: FileRoutesById
 }
@@ -213,6 +276,7 @@ export interface RootRouteChildren {
   FeaturesRoute: typeof FeaturesRoute
   PricingRoute: typeof PricingRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ApiPublicRunJobAlertsRoute: typeof ApiPublicRunJobAlertsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -308,12 +372,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCoverLettersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/alerts': {
+      id: '/_authenticated/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AuthenticatedAlertsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/resumes/': {
       id: '/_authenticated/resumes/'
       path: '/resumes'
       fullPath: '/resumes/'
       preLoaderRoute: typeof AuthenticatedResumesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/interview/': {
+      id: '/_authenticated/interview/'
+      path: '/interview'
+      fullPath: '/interview/'
+      preLoaderRoute: typeof AuthenticatedInterviewIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/run-job-alerts': {
+      id: '/api/public/run-job-alerts'
+      path: '/api/public/run-job-alerts'
+      fullPath: '/api/public/run-job-alerts'
+      preLoaderRoute: typeof ApiPublicRunJobAlertsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/resumes/$id': {
       id: '/_authenticated/resumes/$id'
@@ -322,26 +407,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedResumesIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/resume-history/$id': {
+      id: '/_authenticated/resume-history/$id'
+      path: '/resume-history/$id'
+      fullPath: '/resume-history/$id'
+      preLoaderRoute: typeof AuthenticatedResumeHistoryIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/interview/$id': {
+      id: '/_authenticated/interview/$id'
+      path: '/interview/$id'
+      fullPath: '/interview/$id'
+      preLoaderRoute: typeof AuthenticatedInterviewIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
   AuthenticatedCoverLettersRoute: typeof AuthenticatedCoverLettersRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedJobsRoute: typeof AuthenticatedJobsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedTrackerRoute: typeof AuthenticatedTrackerRoute
+  AuthenticatedInterviewIdRoute: typeof AuthenticatedInterviewIdRoute
+  AuthenticatedResumeHistoryIdRoute: typeof AuthenticatedResumeHistoryIdRoute
   AuthenticatedResumesIdRoute: typeof AuthenticatedResumesIdRoute
+  AuthenticatedInterviewIndexRoute: typeof AuthenticatedInterviewIndexRoute
   AuthenticatedResumesIndexRoute: typeof AuthenticatedResumesIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
   AuthenticatedCoverLettersRoute: AuthenticatedCoverLettersRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedJobsRoute: AuthenticatedJobsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedTrackerRoute: AuthenticatedTrackerRoute,
+  AuthenticatedInterviewIdRoute: AuthenticatedInterviewIdRoute,
+  AuthenticatedResumeHistoryIdRoute: AuthenticatedResumeHistoryIdRoute,
   AuthenticatedResumesIdRoute: AuthenticatedResumesIdRoute,
+  AuthenticatedInterviewIndexRoute: AuthenticatedInterviewIndexRoute,
   AuthenticatedResumesIndexRoute: AuthenticatedResumesIndexRoute,
 }
 
@@ -357,6 +464,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeaturesRoute: FeaturesRoute,
   PricingRoute: PricingRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ApiPublicRunJobAlertsRoute: ApiPublicRunJobAlertsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

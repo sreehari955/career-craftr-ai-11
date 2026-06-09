@@ -1,16 +1,20 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { type ReactNode, useEffect, useState } from "react";
-import { Briefcase, FileText, KanbanSquare, LayoutDashboard, Mail, Sparkles, User, LogOut } from "lucide-react";
+import { Bell, Briefcase, FileText, KanbanSquare, LayoutDashboard, Mail, MessagesSquare, Sparkles, User, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { unseenCount } from "@/lib/api/alerts.functions";
 
 const nav = [
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { to: "/jobs", label: "Find Jobs", icon: Briefcase },
+  { to: "/alerts", label: "Alerts", icon: Bell },
   { to: "/resumes", label: "Resumes", icon: FileText },
   { to: "/tracker", label: "Tracker", icon: KanbanSquare },
+  { to: "/interview", label: "Interview", icon: MessagesSquare },
   { to: "/cover-letters", label: "Cover Letters", icon: Mail },
   { to: "/profile", label: "Profile", icon: User },
 ] as const;
@@ -20,6 +24,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [email, setEmail] = useState<string | null>(null);
+
+  const unseenFn = useServerFn(unseenCount);
+  const { data: unseen = 0 } = useQuery({ queryKey: ["unseen-matches"], queryFn: () => unseenFn(), refetchInterval: 60_000 });
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
@@ -54,7 +61,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 )}
               >
                 <item.icon className="h-4 w-4" />
-                {item.label}
+                <span className="flex-1">{item.label}</span>
+                {item.to === "/alerts" && unseen > 0 && <span className="rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">{unseen}</span>}
               </Link>
             );
           })}

@@ -5,10 +5,14 @@ import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { listJobs, saveJobApplication } from "@/lib/api/jobs.functions";
-import { MapPin, Briefcase, Search, BookmarkPlus, ExternalLink } from "lucide-react";
+import { listResumes } from "@/lib/api/resumes.functions";
+import { draftRecruiterEmail } from "@/lib/api/ai.functions";
+import { MapPin, Briefcase, Search, BookmarkPlus, ExternalLink, Mail, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/jobs")({
@@ -18,11 +22,35 @@ export const Route = createFileRoute("/_authenticated/jobs")({
 function JobsPage() {
   const qc = useQueryClient();
   const fetchJobs = useServerFn(listJobs);
+  const fetchResumes = useServerFn(listResumes);
   const save = useServerFn(saveJobApplication);
+  const draft = useServerFn(draftRecruiterEmail);
   const { data: jobs = [], isLoading } = useQuery({ queryKey: ["jobs"], queryFn: () => fetchJobs() });
+  const { data: resumes = [] } = useQuery({ queryKey: ["resumes"], queryFn: () => fetchResumes() });
   const [q, setQ] = useState("");
   const [type, setType] = useState<string>("all");
   const [mode, setMode] = useState<string>("all");
+
+  const [emailJob, setEmailJob] = useState<{ id: string; title: string; company: string } | null>(null);
+  const [emailResumeId, setEmailResumeId] = useState<string>("");
+  const [emailDraft, setEmailDraft] = useState<{ subject: string; body: string } | null>(null);
+
+  const draftMut = useMutation({
+    mutationFn: async () => {
+      if (!emailJob) throw new Error("No job");
+      if (!emailResumeId) throw new Error("Pick a resume");
+      return draft({ data: { resume_id: emailResumeId, job_id: emailJob.id } });
+    },
+    onSuccess: (d) => setEmailDraft(d),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const openEmail = (j: { id: string; title: string; company: string }) => {
+    setEmailJob(j);
+    setEmailDraft(null);
+    const master = resumes.find((r) => r.is_master) ?? resumes[0];
+    setEmailResumeId(master?.id ?? "");
+  };
 
   const filtered = useMemo(() => jobs.filter((j) => {
     if (type !== "all" && j.job_type !== type) return false;
@@ -95,9 +123,12 @@ function JobsPage() {
                   {j.skills.slice(0, 6).map((s) => <Badge key={s} variant="outline">{s}</Badge>)}
                 </div>
               )}
-              <div className="mt-4 flex gap-2">
+              <div className="mt-4 flex flex-wrap gap-2">
                 <Button size="sm" onClick={() => saveMut.mutate(j.id)} disabled={saveMut.isPending}>
                   <BookmarkPlus className="mr-1 h-4 w-4" /> Save
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => openEmail({ id: j.id, title: j.title, company: j.company })}>
+                  <Mail className="mr-1 h-4 w-4" /> Email recruiter
                 </Button>
                 {j.apply_url && (
                   <Button size="sm" variant="outline" asChild>
@@ -110,6 +141,42 @@ function JobsPage() {
           {filtered.length === 0 && <p className="text-muted-foreground">No roles match your filters.</p>}
         </div>
       )}
+
+      <Dialog open={!!emailJob} onOpenChange={(o) => { if (!o) setEmailJob(null); }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader><DialogTitle>Email a recruiter at {emailJob?.company}</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="text-sm font-medium">Use resume</label>
+              <Select value={emailResumeId} onValueChange={setEmailResumeId}>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Pick a resume" /></SelectTrigger>
+                <SelectContent>
+                  {resumes.map((r) => <SelectItem key={r.id} value={r.id}>{r.name}{r.is_master ? " (Master)" : ""}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button onClick={() => draftMut.mutate()} disabled={draftMut.isPending || !emailResumeId} className="bg-gradient-hero">
+              {draftMut.isPending ? "Drafting…" : emailDraft ? "Regenerate" : "Draft with AI"}
+            </Button>
+            {emailDraft && (
+              <div className="space-y-2">
+                <div>
+                  <label className="text-xs text-muted-foreground">Subject</label>
+                  <Input value={emailDraft.subject} onChange={(e) => setEmailDraft({ ...emailDraft, subject: e.target.value })} />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">Body</label>
+                  <Textarea rows={12} value={emailDraft.body} onChange={(e) => setEmailDraft({ ...emailDraft, body: e.target.value })} />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(`Subject: ${emailDraft.subject}\n\n${emailDraft.body}`); toast.success("Copied"); }}><Copy className="mr-1 h-4 w-4" /> Copy</Button>
+                  <Button size="sm" asChild><a href={`mailto:?subject=${encodeURIComponent(emailDraft.subject)}&body=${encodeURIComponent(emailDraft.body)}`}><Mail className="mr-1 h-4 w-4" /> Open in mail app</a></Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

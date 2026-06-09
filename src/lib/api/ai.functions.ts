@@ -51,8 +51,17 @@ export const tailorResume = createServerFn({ method: "POST" })
         experimental_output: Output.object({ schema: ResumeContentSchema }),
       });
 
+      // Determine root + next version for history
+      const rootId = master.parent_resume_id ?? master.id;
+      const { data: siblings } = await context.supabase
+        .from("resumes").select("version")
+        .eq("user_id", context.userId)
+        .or(`id.eq.${rootId},parent_resume_id.eq.${rootId}`);
+      const nextVersion = ((siblings ?? []).reduce((m, r) => Math.max(m, r.version ?? 1), 1)) + 1;
+
       const { data: created, error } = await context.supabase.from("resumes").insert({
         user_id: context.userId, name: data.new_name, is_master: false, job_id: job.id, content: experimental_output,
+        parent_resume_id: rootId, version: nextVersion,
       }).select("id").single();
       if (error) throw new Error(error.message);
       return { id: created.id };
@@ -131,3 +140,41 @@ export const generateCoverLetter = createServerFn({ method: "POST" })
       return { content: text, company, role };
     } catch (e) { handleAIError(e); }
   });
+
+const EmailDraftSchema = z.object({
+  subject: z.string(),
+  body: z.string(),
+});
+
+export const draftRecruiterEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({
+    resume_id: z.string().uuid(),
+    job_id: z.string().uuid().optional(),
+    company: z.string().max(160).optional(),
+    role: z.string().max(160).optional(),
+    recruiter_name: z.string().max(120).optional(),
+    tone: z.enum(["warm", "professional", "concise"]).optional().default("warm"),
+  }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: resume } = await context.supabase.from("resumes").select("*").eq("id", data.resume_id).eq("user_id", context.userId).maybeSingle();
+    if (!resume) throw new Error("Resume not found");
+    const { data: profile } = await context.supabase.from("profiles").select("full_name, linkedin_url, portfolio_url, github_url").eq("id", context.userId).maybeSingle();
+    let company = data.company ?? "";
+    let role = data.role ?? "";
+    if (data.job_id) {
+      const { data: job } = await context.supabase.from("jobs").select("*").eq("id", data.job_id).maybeSingle();
+      if (job) { company = job.company; role = job.title; }
+    }
+    try {
+      const model = await getModel();
+      const { experimental_output } = await generateText({
+        model,
+        system: `You draft short, polite outreach emails students send to recruiters. Tone: ${data.tone}. 120-180 words. Plain text only — no markdown. Mention the specific role, 1-2 concrete strengths from the resume that fit, and a clear ask (a quick chat or to be considered). End with the candidate's full name. Subject line under 70 chars, specific (include role + name).`,
+        prompt: `Draft an outreach email.\n\nFrom: ${profile?.full_name ?? "the candidate"}\nTo: ${data.recruiter_name ? data.recruiter_name + " (recruiter)" : "the recruiter"}\nCompany: ${company}\nRole: ${role}\nLinks: ${[profile?.linkedin_url, profile?.portfolio_url, profile?.github_url].filter(Boolean).join(", ") || "(none)"}\n\nResume highlights (JSON):\n${JSON.stringify(resume.content)}`,
+        experimental_output: Output.object({ schema: EmailDraftSchema }),
+      });
+      return experimental_output;
+    } catch (e) { handleAIError(e); }
+  });
+

@@ -13,8 +13,9 @@ import { Switch } from "@/components/ui/switch";
 import { getResume, upsertResume } from "@/lib/api/resumes.functions";
 import { scoreResumeATS } from "@/lib/api/ai.functions";
 import { listJobs } from "@/lib/api/jobs.functions";
-import { ArrowLeft, Plus, Save, Sparkles, Trash2, X, Wand2 } from "lucide-react";
+import { ArrowLeft, Plus, Save, Sparkles, Trash2, X, Wand2, Download, GitBranch } from "lucide-react";
 import { toast } from "sonner";
+import { downloadResumePdf } from "@/lib/resume-pdf";
 
 export const Route = createFileRoute("/_authenticated/resumes/$id")({
   component: ResumeEditor,
@@ -89,11 +90,13 @@ function ResumeEditor() {
             <Input value={name} onChange={(e) => setName(e.target.value)} className="h-9 w-64 font-display text-base font-semibold" maxLength={120} />
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 text-sm">
             <Switch checked={isMaster} onCheckedChange={setIsMaster} id="master" />
             <Label htmlFor="master">Master resume</Label>
           </div>
+          <Button asChild variant="outline" size="sm"><Link to="/resume-history/$id" params={{ id }}><GitBranch className="mr-1 h-4 w-4" /> History</Link></Button>
+          <Button variant="outline" size="sm" onClick={() => downloadResumePdf(name, content, undefined)}><Download className="mr-1 h-4 w-4" /> PDF</Button>
           <Button onClick={() => saveMut.mutate()} disabled={saveMut.isPending}><Save className="mr-1 h-4 w-4" /> Save</Button>
         </div>
       </div>
