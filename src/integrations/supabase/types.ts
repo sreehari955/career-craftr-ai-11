@@ -14,7 +14,265 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      applications: {
+        Row: {
+          applied_at: string | null
+          company: string
+          contact: string | null
+          created_at: string
+          id: string
+          job_id: string | null
+          link: string | null
+          notes: string | null
+          resume_id: string | null
+          role: string
+          status: Database["public"]["Enums"]["application_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          applied_at?: string | null
+          company: string
+          contact?: string | null
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          link?: string | null
+          notes?: string | null
+          resume_id?: string | null
+          role: string
+          status?: Database["public"]["Enums"]["application_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          applied_at?: string | null
+          company?: string
+          contact?: string | null
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          link?: string | null
+          notes?: string | null
+          resume_id?: string | null
+          role?: string
+          status?: Database["public"]["Enums"]["application_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_resume_id_fkey"
+            columns: ["resume_id"]
+            isOneToOne: false
+            referencedRelation: "resumes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cover_letters: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          job_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cover_letters_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jobs: {
+        Row: {
+          apply_url: string | null
+          company: string
+          description: string
+          id: string
+          job_type: string
+          location: string
+          mode: string
+          posted_at: string
+          requirements: string[] | null
+          skills: string[] | null
+          stipend: string | null
+          title: string
+        }
+        Insert: {
+          apply_url?: string | null
+          company: string
+          description: string
+          id?: string
+          job_type: string
+          location: string
+          mode: string
+          posted_at?: string
+          requirements?: string[] | null
+          skills?: string[] | null
+          stipend?: string | null
+          title: string
+        }
+        Update: {
+          apply_url?: string | null
+          company?: string
+          description?: string
+          id?: string
+          job_type?: string
+          location?: string
+          mode?: string
+          posted_at?: string
+          requirements?: string[] | null
+          skills?: string[] | null
+          stipend?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          cgpa: number | null
+          college: string | null
+          created_at: string
+          degree: string | null
+          full_name: string | null
+          github_url: string | null
+          goals: string[] | null
+          graduation_year: number | null
+          headline: string | null
+          id: string
+          linkedin_url: string | null
+          location: string | null
+          onboarded: boolean
+          phone: string | null
+          portfolio_url: string | null
+          preferred_locations: string[] | null
+          preferred_roles: string[] | null
+          skills: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          cgpa?: number | null
+          college?: string | null
+          created_at?: string
+          degree?: string | null
+          full_name?: string | null
+          github_url?: string | null
+          goals?: string[] | null
+          graduation_year?: number | null
+          headline?: string | null
+          id: string
+          linkedin_url?: string | null
+          location?: string | null
+          onboarded?: boolean
+          phone?: string | null
+          portfolio_url?: string | null
+          preferred_locations?: string[] | null
+          preferred_roles?: string[] | null
+          skills?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          cgpa?: number | null
+          college?: string | null
+          created_at?: string
+          degree?: string | null
+          full_name?: string | null
+          github_url?: string | null
+          goals?: string[] | null
+          graduation_year?: number | null
+          headline?: string | null
+          id?: string
+          linkedin_url?: string | null
+          location?: string | null
+          onboarded?: boolean
+          phone?: string | null
+          portfolio_url?: string | null
+          preferred_locations?: string[] | null
+          preferred_roles?: string[] | null
+          skills?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      resumes: {
+        Row: {
+          ats_feedback: Json | null
+          ats_score: number | null
+          content: Json
+          created_at: string
+          id: string
+          is_master: boolean
+          job_id: string | null
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ats_feedback?: Json | null
+          ats_score?: number | null
+          content?: Json
+          created_at?: string
+          id?: string
+          is_master?: boolean
+          job_id?: string | null
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ats_feedback?: Json | null
+          ats_score?: number | null
+          content?: Json
+          created_at?: string
+          id?: string
+          is_master?: boolean
+          job_id?: string | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resumes_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +281,12 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      application_status:
+        | "saved"
+        | "applied"
+        | "interview"
+        | "offer"
+        | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +413,14 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      application_status: [
+        "saved",
+        "applied",
+        "interview",
+        "offer",
+        "rejected",
+      ],
+    },
   },
 } as const
