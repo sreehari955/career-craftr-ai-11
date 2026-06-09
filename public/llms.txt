@@ -1,0 +1,12 @@
+# JobTrack-AI
+
+> Smart job search and AI resumes for students and freshers.
+
+JobTrack-AI helps students discover internships and jobs, build ATS-friendly resumes tailored to each role, and track every application in one place.
+
+## Pages
+- [Home](/): Product overview and how it works
+- [Features](/features): AI resume builder, job matcher, tracker, cover letters
+- [Pricing](/pricing): Free and Premium plans
+- [About](/about): Mission and team
+- [FAQ](/faq): Common questions about ATS, AI resumes, and security
