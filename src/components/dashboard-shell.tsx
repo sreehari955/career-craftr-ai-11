@@ -61,7 +61,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 )}
               >
                 <item.icon className="h-4 w-4" />
-                {item.label}
+                <span className="flex-1">{item.label}</span>
+                {item.to === "/alerts" && unseen > 0 && <span className="rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">{unseen}</span>}
               </Link>
             );
           })}
