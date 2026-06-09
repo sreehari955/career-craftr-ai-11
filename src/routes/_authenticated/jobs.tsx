@@ -22,10 +22,35 @@ export const Route = createFileRoute("/_authenticated/jobs")({
 function JobsPage() {
   const qc = useQueryClient();
   const fetchJobs = useServerFn(listJobs);
+  const fetchResumes = useServerFn(listResumes);
   const save = useServerFn(saveJobApplication);
+  const draft = useServerFn(draftRecruiterEmail);
   const { data: jobs = [], isLoading } = useQuery({ queryKey: ["jobs"], queryFn: () => fetchJobs() });
+  const { data: resumes = [] } = useQuery({ queryKey: ["resumes"], queryFn: () => fetchResumes() });
   const [q, setQ] = useState("");
   const [type, setType] = useState<string>("all");
+  const [mode, setMode] = useState<string>("all");
+
+  const [emailJob, setEmailJob] = useState<{ id: string; title: string; company: string } | null>(null);
+  const [emailResumeId, setEmailResumeId] = useState<string>("");
+  const [emailDraft, setEmailDraft] = useState<{ subject: string; body: string } | null>(null);
+
+  const draftMut = useMutation({
+    mutationFn: async () => {
+      if (!emailJob) throw new Error("No job");
+      if (!emailResumeId) throw new Error("Pick a resume");
+      return draft({ data: { resume_id: emailResumeId, job_id: emailJob.id } });
+    },
+    onSuccess: (d) => setEmailDraft(d),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const openEmail = (j: { id: string; title: string; company: string }) => {
+    setEmailJob(j);
+    setEmailDraft(null);
+    const master = resumes.find((r) => r.is_master) ?? resumes[0];
+    setEmailResumeId(master?.id ?? "");
+  };
   const [mode, setMode] = useState<string>("all");
 
   const filtered = useMemo(() => jobs.filter((j) => {
