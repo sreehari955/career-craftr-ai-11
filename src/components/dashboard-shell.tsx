@@ -25,6 +25,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [email, setEmail] = useState<string | null>(null);
 
+  const unseenFn = useServerFn(unseenCount);
+  const { data: unseen = 0 } = useQuery({ queryKey: ["unseen-matches"], queryFn: () => unseenFn(), refetchInterval: 60_000 });
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
   }, []);
