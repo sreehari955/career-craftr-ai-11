@@ -51,7 +51,6 @@ function JobsPage() {
     const master = resumes.find((r) => r.is_master) ?? resumes[0];
     setEmailResumeId(master?.id ?? "");
   };
-  const [mode, setMode] = useState<string>("all");
 
   const filtered = useMemo(() => jobs.filter((j) => {
     if (type !== "all" && j.job_type !== type) return false;
