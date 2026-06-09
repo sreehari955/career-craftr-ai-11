@@ -13,8 +13,9 @@ import { Switch } from "@/components/ui/switch";
 import { getResume, upsertResume } from "@/lib/api/resumes.functions";
 import { scoreResumeATS } from "@/lib/api/ai.functions";
 import { listJobs } from "@/lib/api/jobs.functions";
-import { ArrowLeft, Plus, Save, Sparkles, Trash2, X, Wand2 } from "lucide-react";
+import { ArrowLeft, Plus, Save, Sparkles, Trash2, X, Wand2, Download, GitBranch } from "lucide-react";
 import { toast } from "sonner";
+import { downloadResumePdf } from "@/lib/resume-pdf";
 
 export const Route = createFileRoute("/_authenticated/resumes/$id")({
   component: ResumeEditor,
