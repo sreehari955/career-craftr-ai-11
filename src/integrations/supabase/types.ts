@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      alert_matches: {
+        Row: {
+          alert_id: string
+          created_at: string
+          id: string
+          job_id: string
+          seen: boolean
+          user_id: string
+        }
+        Insert: {
+          alert_id: string
+          created_at?: string
+          id?: string
+          job_id: string
+          seen?: boolean
+          user_id: string
+        }
+        Update: {
+          alert_id?: string
+          created_at?: string
+          id?: string
+          job_id?: string
+          seen?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_matches_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "job_alerts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_matches_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       applications: {
         Row: {
           applied_at: string | null
@@ -114,6 +156,92 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      interview_sessions: {
+        Row: {
+          answers: Json
+          created_at: string
+          feedback: Json
+          id: string
+          job_id: string | null
+          questions: Json
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          feedback?: Json
+          id?: string
+          job_id?: string | null
+          questions?: Json
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          feedback?: Json
+          id?: string
+          job_id?: string | null
+          questions?: Json
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interview_sessions_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_alerts: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          job_types: string[]
+          keywords: string[]
+          last_checked_at: string | null
+          locations: string[]
+          modes: string[]
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          job_types?: string[]
+          keywords?: string[]
+          last_checked_at?: string | null
+          locations?: string[]
+          modes?: string[]
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          job_types?: string[]
+          keywords?: string[]
+          last_checked_at?: string | null
+          locations?: string[]
+          modes?: string[]
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       jobs: {
         Row: {
@@ -236,8 +364,10 @@ export type Database = {
           is_master: boolean
           job_id: string | null
           name: string
+          parent_resume_id: string | null
           updated_at: string
           user_id: string
+          version: number
         }
         Insert: {
           ats_feedback?: Json | null
@@ -248,8 +378,10 @@ export type Database = {
           is_master?: boolean
           job_id?: string | null
           name: string
+          parent_resume_id?: string | null
           updated_at?: string
           user_id: string
+          version?: number
         }
         Update: {
           ats_feedback?: Json | null
@@ -260,8 +392,10 @@ export type Database = {
           is_master?: boolean
           job_id?: string | null
           name?: string
+          parent_resume_id?: string | null
           updated_at?: string
           user_id?: string
+          version?: number
         }
         Relationships: [
           {
@@ -269,6 +403,13 @@ export type Database = {
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resumes_parent_resume_id_fkey"
+            columns: ["parent_resume_id"]
+            isOneToOne: false
+            referencedRelation: "resumes"
             referencedColumns: ["id"]
           },
         ]
