@@ -51,8 +51,17 @@ export const tailorResume = createServerFn({ method: "POST" })
         experimental_output: Output.object({ schema: ResumeContentSchema }),
       });
 
+      // Determine root + next version for history
+      const rootId = master.parent_resume_id ?? master.id;
+      const { data: siblings } = await context.supabase
+        .from("resumes").select("version")
+        .eq("user_id", context.userId)
+        .or(`id.eq.${rootId},parent_resume_id.eq.${rootId}`);
+      const nextVersion = ((siblings ?? []).reduce((m, r) => Math.max(m, r.version ?? 1), 1)) + 1;
+
       const { data: created, error } = await context.supabase.from("resumes").insert({
         user_id: context.userId, name: data.new_name, is_master: false, job_id: job.id, content: experimental_output,
+        parent_resume_id: rootId, version: nextVersion,
       }).select("id").single();
       if (error) throw new Error(error.message);
       return { id: created.id };
