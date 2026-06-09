@@ -8,11 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { listResumes, upsertResume, deleteResume } from "@/lib/api/resumes.functions";
+import { listResumes, upsertResume, deleteResume, getResume } from "@/lib/api/resumes.functions";
 import { listJobs } from "@/lib/api/jobs.functions";
 import { tailorResume } from "@/lib/api/ai.functions";
-import { FilePlus, Sparkles, Trash2, Star, Wand2 } from "lucide-react";
+import { FilePlus, Sparkles, Trash2, Star, Wand2, Download } from "lucide-react";
 import { toast } from "sonner";
+import { downloadResumePdf } from "@/lib/resume-pdf";
+import type { ResumeContentT } from "@/lib/api/resumes.functions";
 
 export const Route = createFileRoute("/_authenticated/resumes/")({
   component: ResumesPage,
