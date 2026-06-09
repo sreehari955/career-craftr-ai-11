@@ -23,6 +23,7 @@ import { Route as AuthenticatedJobsRouteImport } from './routes/_authenticated/j
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCoverLettersRouteImport } from './routes/_authenticated/cover-letters'
 import { Route as AuthenticatedResumesIndexRouteImport } from './routes/_authenticated/resumes.index'
+import { Route as ApiPublicRunJobAlertsRouteImport } from './routes/api/public/run-job-alerts'
 import { Route as AuthenticatedResumesIdRouteImport } from './routes/_authenticated/resumes.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -96,6 +97,11 @@ const AuthenticatedResumesIndexRoute =
     path: '/resumes/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicRunJobAlertsRoute = ApiPublicRunJobAlertsRouteImport.update({
+  id: '/api/public/run-job-alerts',
+  path: '/api/public/run-job-alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedResumesIdRoute = AuthenticatedResumesIdRouteImport.update({
   id: '/resumes/$id',
   path: '/resumes/$id',
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/tracker': typeof AuthenticatedTrackerRoute
   '/resumes/$id': typeof AuthenticatedResumesIdRoute
+  '/api/public/run-job-alerts': typeof ApiPublicRunJobAlertsRoute
   '/resumes/': typeof AuthenticatedResumesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -132,6 +139,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/tracker': typeof AuthenticatedTrackerRoute
   '/resumes/$id': typeof AuthenticatedResumesIdRoute
+  '/api/public/run-job-alerts': typeof ApiPublicRunJobAlertsRoute
   '/resumes': typeof AuthenticatedResumesIndexRoute
 }
 export interface FileRoutesById {
@@ -150,6 +158,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/tracker': typeof AuthenticatedTrackerRoute
   '/_authenticated/resumes/$id': typeof AuthenticatedResumesIdRoute
+  '/api/public/run-job-alerts': typeof ApiPublicRunJobAlertsRoute
   '/_authenticated/resumes/': typeof AuthenticatedResumesIndexRoute
 }
 export interface FileRouteTypes {
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/tracker'
     | '/resumes/$id'
+    | '/api/public/run-job-alerts'
     | '/resumes/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -184,6 +194,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/tracker'
     | '/resumes/$id'
+    | '/api/public/run-job-alerts'
     | '/resumes'
   id:
     | '__root__'
@@ -201,6 +212,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/tracker'
     | '/_authenticated/resumes/$id'
+    | '/api/public/run-job-alerts'
     | '/_authenticated/resumes/'
   fileRoutesById: FileRoutesById
 }
@@ -213,6 +225,7 @@ export interface RootRouteChildren {
   FeaturesRoute: typeof FeaturesRoute
   PricingRoute: typeof PricingRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ApiPublicRunJobAlertsRoute: typeof ApiPublicRunJobAlertsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -315,6 +328,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedResumesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/run-job-alerts': {
+      id: '/api/public/run-job-alerts'
+      path: '/api/public/run-job-alerts'
+      fullPath: '/api/public/run-job-alerts'
+      preLoaderRoute: typeof ApiPublicRunJobAlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/resumes/$id': {
       id: '/_authenticated/resumes/$id'
       path: '/resumes/$id'
@@ -357,6 +377,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeaturesRoute: FeaturesRoute,
   PricingRoute: PricingRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ApiPublicRunJobAlertsRoute: ApiPublicRunJobAlertsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
