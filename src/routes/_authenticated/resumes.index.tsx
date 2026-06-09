@@ -27,6 +27,14 @@ function ResumesPage() {
   const saveResume = useServerFn(upsertResume);
   const removeResume = useServerFn(deleteResume);
   const tailor = useServerFn(tailorResume);
+  const fetchOne = useServerFn(getResume);
+
+  const downloadPdf = async (r: { id: string; name: string }) => {
+    const full = await fetchOne({ data: { id: r.id } });
+    if (!full) { toast.error("Resume not found"); return; }
+    await downloadResumePdf(r.name, full.content as ResumeContentT);
+  };
+
 
   const { data: resumes = [] } = useQuery({ queryKey: ["resumes"], queryFn: () => fetchResumes() });
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => fetchJobs() });
