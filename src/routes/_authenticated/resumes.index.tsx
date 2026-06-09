@@ -154,6 +154,7 @@ function ResumesPage() {
             )}
             <div className="mt-4 flex gap-2">
               <Button asChild size="sm" variant="outline" className="flex-1"><Link to="/resumes/$id" params={{ id: r.id }}>Open</Link></Button>
+              <Button size="sm" variant="ghost" onClick={() => downloadPdf(r)} title="Download PDF"><Download className="h-4 w-4" /></Button>
               <Button size="sm" variant="ghost" onClick={() => del.mutate(r.id)}><Trash2 className="h-4 w-4" /></Button>
             </div>
           </Card>
