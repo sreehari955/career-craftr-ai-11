@@ -1,16 +1,20 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { type ReactNode, useEffect, useState } from "react";
-import { Briefcase, FileText, KanbanSquare, LayoutDashboard, Mail, Sparkles, User, LogOut } from "lucide-react";
+import { Bell, Briefcase, FileText, KanbanSquare, LayoutDashboard, Mail, MessagesSquare, Sparkles, User, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { unseenCount } from "@/lib/api/alerts.functions";
 
 const nav = [
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { to: "/jobs", label: "Find Jobs", icon: Briefcase },
+  { to: "/alerts", label: "Alerts", icon: Bell },
   { to: "/resumes", label: "Resumes", icon: FileText },
   { to: "/tracker", label: "Tracker", icon: KanbanSquare },
+  { to: "/interview", label: "Interview", icon: MessagesSquare },
   { to: "/cover-letters", label: "Cover Letters", icon: Mail },
   { to: "/profile", label: "Profile", icon: User },
 ] as const;
