@@ -11,7 +11,7 @@ import { listResumeVersions } from "@/lib/api/resume-versions.functions";
 import { ArrowLeft, GitBranch } from "lucide-react";
 import type { ResumeContentT } from "@/lib/api/resumes.functions";
 
-export const Route = createFileRoute("/resume-history/$id")({
+export const Route = createFileRoute("/_authenticated/resume-history/$id")({
   component: HistoryPage,
 });
 
