@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -20,6 +20,7 @@ type Profile = NonNullable<Awaited<ReturnType<typeof getProfile>>>;
 
 function ProfilePage() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const fetchProfile = useServerFn(getProfile);
   const saveProfile = useServerFn(updateProfile);
   const { data, isLoading } = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
@@ -29,7 +30,11 @@ function ProfilePage() {
 
   const mut = useMutation({
     mutationFn: async (vals: Partial<Profile>) => saveProfile({ data: { ...vals, onboarded: true } as never }),
-    onSuccess: () => { toast.success("Profile saved"); qc.invalidateQueries({ queryKey: ["profile"] }); },
+    onSuccess: () => {
+      toast.success("Profile saved");
+      qc.invalidateQueries({ queryKey: ["profile"] });
+      navigate({ to: "/dashboard" });
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 
