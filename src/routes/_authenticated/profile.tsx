@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -21,6 +21,7 @@ type Profile = NonNullable<Awaited<ReturnType<typeof getProfile>>>;
 
 function ProfilePage() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const fetchProfile = useServerFn(getProfile);
   const saveProfile = useServerFn(updateProfile);
   const { data, isLoading } = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
@@ -46,6 +47,7 @@ function ProfilePage() {
   }, [data]);
 
   const mut = useMutation({
+<<<<<<< HEAD
     mutationFn: async (vals: Partial<Profile>) => {
       // Save avatar to localStorage as a robust local fallback
       if (vals.id) {
@@ -72,6 +74,13 @@ function ProfilePage() {
       toast.success("Profile saved"); 
       qc.invalidateQueries({ queryKey: ["profile"] }); 
       router.navigate({ to: "/dashboard" }); 
+=======
+    mutationFn: async (vals: Partial<Profile>) => saveProfile({ data: { ...vals, onboarded: true } as never }),
+    onSuccess: () => {
+      toast.success("Profile saved");
+      qc.invalidateQueries({ queryKey: ["profile"] });
+      navigate({ to: "/dashboard" });
+>>>>>>> 486cd47eac3a36a027a872a9642cdb6fde6bbc9f
     },
     onError: (e: Error) => toast.error(e.message),
   });
