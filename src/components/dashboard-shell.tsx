@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { unseenCount } from "@/lib/api/alerts.functions";
+import { getProfile } from "@/lib/api/profile.functions";
 
 const nav = [
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -27,6 +28,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
   const unseenFn = useServerFn(unseenCount);
   const { data: unseen = 0 } = useQuery({ queryKey: ["unseen-matches"], queryFn: () => unseenFn(), refetchInterval: 60_000 });
+
+  const fetchProfile = useServerFn(getProfile);
+  const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
@@ -68,7 +72,19 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="border-t p-3">
-          <div className="mb-2 truncate px-2 text-xs text-sidebar-foreground/60">{email}</div>
+          <Link to="/profile" className="flex items-center gap-2 px-2 py-1.5 hover:bg-sidebar-accent rounded-lg mb-2 group">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="Profile" className="h-8 w-8 rounded-full object-cover border border-border group-hover:border-primary transition-colors duration-200" />
+            ) : (
+              <div className="grid h-8 w-8 place-items-center rounded-full bg-muted border border-border group-hover:border-primary transition-colors duration-200">
+                <User className="h-4 w-4 text-muted-foreground" />
+              </div>
+            )}
+            <div className="flex flex-col min-w-0 flex-1">
+              <span className="text-xs font-semibold text-sidebar-foreground truncate">{profile?.full_name || "Set Name"}</span>
+              <span className="text-[10px] text-sidebar-foreground/60 truncate">{email}</span>
+            </div>
+          </Link>
           <Button onClick={signOut} variant="ghost" size="sm" className="w-full justify-start gap-2">
             <LogOut className="h-4 w-4" /> Sign out
           </Button>
@@ -78,7 +94,16 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         <div className="border-b bg-background/80 px-4 py-3 backdrop-blur md:hidden">
           <div className="flex items-center justify-between">
             <Link to="/dashboard" className="font-display font-bold">JobTrack-AI</Link>
-            <Button size="sm" variant="ghost" onClick={signOut}><LogOut className="h-4 w-4" /></Button>
+            <div className="flex items-center gap-2">
+              <Link to="/profile" className="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-border bg-muted flex items-center justify-center">
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Profile" className="h-full w-full object-cover" />
+                ) : (
+                  <User className="h-4 w-4 text-muted-foreground" />
+                )}
+              </Link>
+              <Button size="sm" variant="ghost" onClick={signOut}><LogOut className="h-4 w-4" /></Button>
+            </div>
           </div>
           <nav className="mt-3 flex gap-2 overflow-x-auto pb-1">
             {nav.map((item) => (

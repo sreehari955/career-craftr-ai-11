@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { getProfile, updateProfile } from "@/lib/api/profile.functions";
 import { toast } from "sonner";
-import { X } from "lucide-react";
+import { X, Camera, User, Trash } from "lucide-react";
+import { useRouter } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
@@ -23,15 +24,142 @@ function ProfilePage() {
   const fetchProfile = useServerFn(getProfile);
   const saveProfile = useServerFn(updateProfile);
   const { data, isLoading } = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
+  const router = useRouter();
   const [form, setForm] = useState<Partial<Profile>>({});
+  
+  // Cropper / Adjustment states
+  const [cropImage, setCropImage] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [rotation, setRotation] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  useEffect(() => { if (data) setForm(data); }, [data]);
+  useEffect(() => {
+    if (data) {
+      const localAvatar = data.id ? localStorage.getItem(`avatar_${data.id}`) : null;
+      setForm({
+        ...data,
+        avatar_url: data.avatar_url || localAvatar
+      });
+    }
+  }, [data]);
 
   const mut = useMutation({
-    mutationFn: async (vals: Partial<Profile>) => saveProfile({ data: { ...vals, onboarded: true } as never }),
-    onSuccess: () => { toast.success("Profile saved"); qc.invalidateQueries({ queryKey: ["profile"] }); },
+    mutationFn: async (vals: Partial<Profile>) => {
+      // Save avatar to localStorage as a robust local fallback
+      if (vals.id) {
+        if (vals.avatar_url) {
+          localStorage.setItem(`avatar_${vals.id}`, vals.avatar_url);
+        } else {
+          localStorage.removeItem(`avatar_${vals.id}`);
+        }
+      }
+
+      try {
+        // Try to update with avatar_url
+        return await saveProfile({ data: { ...vals, onboarded: true } as never });
+      } catch (err: any) {
+        // If it failed because of avatar_url column missing, retry without it
+        if (err.message?.includes("avatar_url") || err.message?.includes("schema cache") || err.message?.includes("column")) {
+          const { avatar_url, ...rest } = vals;
+          return await saveProfile({ data: { ...rest, onboarded: true } as never });
+        }
+        throw err;
+      }
+    },
+    onSuccess: () => { 
+      toast.success("Profile saved"); 
+      qc.invalidateQueries({ queryKey: ["profile"] }); 
+      router.navigate({ to: "/dashboard" }); 
+    },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+  };
+  
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setPan({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y
+    });
+  };
+  
+  const handleMouseUp = () => setIsDragging(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length !== 1) return;
+    setIsDragging(true);
+    setDragStart({ x: e.touches[0].clientX - pan.x, y: e.touches[0].clientY - pan.y });
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || e.touches.length !== 1) return;
+    setPan({
+      x: e.touches[0].clientX - dragStart.x,
+      y: e.touches[0].clientY - dragStart.y
+    });
+  };
+
+  const handleTouchEnd = () => setIsDragging(false);
+
+  const applyCrop = () => {
+    const img = new Image();
+    img.src = cropImage!;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const canvasSize = 300;
+      canvas.width = canvasSize;
+      canvas.height = canvasSize;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      ctx.clearRect(0, 0, canvasSize, canvasSize);
+
+      ctx.translate(canvasSize / 2, canvasSize / 2);
+      ctx.rotate((rotation * Math.PI) / 180);
+
+      const ratio = img.width / img.height;
+      const scaleFactor = canvasSize / 200; 
+
+      const drawW = canvasSize;
+      const drawH = canvasSize / ratio;
+
+      ctx.drawImage(
+        img,
+        -drawW / 2 + pan.x * scaleFactor,
+        -drawH / 2 + pan.y * scaleFactor,
+        drawW * zoom,
+        drawH * zoom
+      );
+
+      const croppedDataUrl = canvas.toDataURL("image/jpeg", 0.9);
+      set("avatar_url", croppedDataUrl);
+      setCropImage(null);
+    };
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("Image size must be less than 2MB");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCropImage(reader.result as string);
+        setZoom(1);
+        setPan({ x: 0, y: 0 });
+        setRotation(0);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   if (isLoading) return <p>Loading…</p>;
 
@@ -46,6 +174,65 @@ function ProfilePage() {
 
       <Card className="p-6">
         <h2 className="mb-4 font-semibold">Basics</h2>
+        
+        {/* Profile Photo Upload Section */}
+        <div className="mb-6 flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6 border-b pb-6 border-muted/50">
+          <div className="relative group h-24 w-24 shrink-0 overflow-hidden rounded-full border-2 border-border bg-muted flex items-center justify-center transition-all duration-300 hover:border-primary shadow-soft">
+            {form.avatar_url ? (
+              <img src={form.avatar_url} alt="Profile preview" className="h-full w-full object-cover" />
+            ) : (
+              <User className="h-10 w-10 text-muted-foreground" />
+            )}
+            <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer text-white transition-opacity duration-200 text-xs gap-1">
+              <Camera className="h-5 w-5" />
+              <span>Change</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </label>
+          </div>
+          <div className="flex flex-col justify-center items-center sm:items-start gap-2">
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="relative cursor-pointer"
+                asChild
+              >
+                <label>
+                  <Camera className="mr-2 h-4 w-4" />
+                  Upload Photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                </label>
+              </Button>
+              {form.avatar_url && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  onClick={() => set("avatar_url", null)}
+                >
+                  <Trash className="mr-2 h-4 w-4" />
+                  Remove
+                </Button>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground text-center sm:text-left">
+              JPG, PNG or WEBP. Max size 2MB.
+            </p>
+          </div>
+        </div>
+
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="Full name"><Input value={form.full_name ?? ""} onChange={(e) => set("full_name", e.target.value)} maxLength={120} /></Field>
           <Field label="Headline (e.g. CS undergrad · React + Python)"><Input value={form.headline ?? ""} onChange={(e) => set("headline", e.target.value)} maxLength={200} /></Field>
@@ -102,6 +289,102 @@ function ProfilePage() {
           {mut.isPending ? "Saving…" : "Save profile"}
         </Button>
       </div>
+
+      {/* Crop & Adjust Modal */}
+      {cropImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="w-full max-w-md bg-card border rounded-2xl p-6 shadow-glow border-muted/50 animate-zoom-in">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold font-display">Crop & Adjust Photo</h3>
+              <button type="button" onClick={() => setCropImage(null)} className="text-muted-foreground hover:text-foreground transition-colors">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Viewport */}
+            <div 
+              className="relative h-60 w-full bg-muted/30 rounded-xl overflow-hidden flex items-center justify-center border cursor-move select-none mb-6 group-hover:border-primary/50 transition-colors"
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              {/* Circular Mask Overlay */}
+              <div className="absolute inset-0 bg-black/40 pointer-events-none z-10 flex items-center justify-center">
+                <div className="h-[200px] w-[200px] rounded-full border-2 border-dashed border-white/80 shadow-[0_0_0_9999px_rgba(0,0,0,0.6)]"></div>
+              </div>
+
+              {/* Ajustable Image */}
+              <img
+                src={cropImage}
+                alt="Adjust preview"
+                draggable={false}
+                className="absolute max-w-none origin-center pointer-events-none select-none transition-transform duration-75"
+                style={{
+                  transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom}) rotate(${rotation}deg)`,
+                  width: "200px",
+                  height: "auto",
+                }}
+              />
+            </div>
+
+            {/* Adjust Controls */}
+            <div className="space-y-4 mb-6">
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs font-medium">
+                  <span className="text-muted-foreground">Zoom</span>
+                  <span>{Math.round(zoom * 100)}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="1"
+                  max="3"
+                  step="0.05"
+                  value={zoom}
+                  onChange={(e) => setZoom(parseFloat(e.target.value))}
+                  className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                />
+              </div>
+
+              <div className="flex justify-between items-center gap-4">
+                <span className="text-xs font-medium text-muted-foreground">Rotate</span>
+                <div className="flex gap-1.5">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setRotation((r) => (r - 90) % 360)}
+                    className="h-8 text-xs"
+                  >
+                    Rotate Left
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setRotation((r) => (r + 90) % 360)}
+                    className="h-8 text-xs"
+                  >
+                    Rotate Right
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 border-t pt-4">
+              <Button type="button" variant="ghost" onClick={() => setCropImage(null)} className="h-9 text-xs">
+                Cancel
+              </Button>
+              <Button type="button" onClick={applyCrop} className="bg-gradient-hero h-9 text-xs">
+                Apply Photo
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

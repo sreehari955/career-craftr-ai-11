@@ -11,6 +11,7 @@ export const getProfile = createServerFn({ method: "GET" })
   });
 
 const ProfileInput = z.object({
+  avatar_url: z.string().optional().nullable(),
   full_name: z.string().max(120).optional().nullable(),
   headline: z.string().max(200).optional().nullable(),
   location: z.string().max(120).optional().nullable(),

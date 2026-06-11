@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Briefcase, FileText, KanbanSquare, Mail, Sparkles, ArrowRight } from "lucide-react";
+import { Briefcase, FileText, KanbanSquare, Mail, Sparkles, ArrowRight, User } from "lucide-react";
 import { listResumes } from "@/lib/api/resumes.functions";
 import { listApplications } from "@/lib/api/applications.functions";
 import { getProfile } from "@/lib/api/profile.functions";
@@ -32,11 +32,20 @@ function Dashboard() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-display text-3xl font-bold">
-          Hi {profile?.full_name?.split(" ")[0] ?? "there"} 👋
-        </h1>
-        <p className="mt-1 text-muted-foreground">Here's a quick look at your job hunt.</p>
+      <div className="flex items-center gap-4">
+        {profile?.avatar_url ? (
+          <img src={profile.avatar_url} alt="Profile" className="h-14 w-14 rounded-full object-cover border-2 border-primary/20 shadow-soft" />
+        ) : (
+          <div className="grid h-14 w-14 place-items-center rounded-full bg-muted border-2 border-border">
+            <User className="h-6 w-6 text-muted-foreground" />
+          </div>
+        )}
+        <div>
+          <h1 className="font-display text-3xl font-bold">
+            Hi {profile?.full_name?.split(" ")[0] ?? "there"} 👋
+          </h1>
+          <p className="mt-1 text-muted-foreground">Here's a quick look at your job hunt.</p>
+        </div>
       </div>
 
       {!profile?.onboarded && (
