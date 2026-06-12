@@ -1,6 +1,7 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { type ReactNode, useEffect, useState } from "react";
-import { Bell, Briefcase, FileText, KanbanSquare, LayoutDashboard, Mail, MessagesSquare, Sparkles, User, LogOut } from "lucide-react";
+import { Bell, Briefcase, FileText, KanbanSquare, LayoutDashboard, Mail, MessagesSquare, User, LogOut } from "lucide-react";
+import logo from "@/assets/jobtrack-ai-logo.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
