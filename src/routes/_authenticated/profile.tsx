@@ -47,7 +47,6 @@ function ProfilePage() {
   }, [data]);
 
   const mut = useMutation({
-<<<<<<< HEAD
     mutationFn: async (vals: Partial<Profile>) => {
       // Save avatar to localStorage as a robust local fallback
       if (vals.id) {
@@ -59,10 +58,8 @@ function ProfilePage() {
       }
 
       try {
-        // Try to update with avatar_url
         return await saveProfile({ data: { ...vals, onboarded: true } as never });
       } catch (err: any) {
-        // If it failed because of avatar_url column missing, retry without it
         if (err.message?.includes("avatar_url") || err.message?.includes("schema cache") || err.message?.includes("column")) {
           const { avatar_url, ...rest } = vals;
           return await saveProfile({ data: { ...rest, onboarded: true } as never });
@@ -70,17 +67,10 @@ function ProfilePage() {
         throw err;
       }
     },
-    onSuccess: () => { 
-      toast.success("Profile saved"); 
-      qc.invalidateQueries({ queryKey: ["profile"] }); 
-      router.navigate({ to: "/dashboard" }); 
-=======
-    mutationFn: async (vals: Partial<Profile>) => saveProfile({ data: { ...vals, onboarded: true } as never }),
     onSuccess: () => {
       toast.success("Profile saved");
       qc.invalidateQueries({ queryKey: ["profile"] });
-      navigate({ to: "/dashboard" });
->>>>>>> 486cd47eac3a36a027a872a9642cdb6fde6bbc9f
+      router.navigate({ to: "/dashboard" });
     },
     onError: (e: Error) => toast.error(e.message),
   });
