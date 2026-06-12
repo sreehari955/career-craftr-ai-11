@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Sparkles } from "lucide-react";
+import logo from "@/assets/jobtrack-ai-logo.png.asset.json";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -15,11 +15,8 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-hero text-primary-foreground shadow-soft">
-            <Sparkles className="h-4 w-4" />
-          </span>
-          JobTrack-AI
+        <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold" aria-label="JobTrack-AI home">
+          <img src={logo.url} alt="JobTrack-AI" className="h-9 w-auto" />
         </Link>
         <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
           <Link to="/features" className="hover:text-foreground">Features</Link>
