@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Sparkles } from "lucide-react";
+import logo from "@/assets/jobtrack-ai-logo.png.asset.json";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
