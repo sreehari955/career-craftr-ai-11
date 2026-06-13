@@ -88,9 +88,7 @@ export const adminGetSettings = createServerFn({ method: "POST" })
     await assertAdmin(context.userId, data.passcode);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows } = await supabaseAdmin.from("site_settings").select("key, value");
-    const map: Record<string, unknown> = {};
-    (rows ?? []).forEach((r) => { map[r.key] = r.value; });
-    return map;
+    return (rows ?? []) as { key: string; value: Record<string, string | number | boolean> }[];
   });
 
 export const adminUpdateSetting = createServerFn({ method: "POST" })
