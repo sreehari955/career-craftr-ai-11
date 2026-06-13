@@ -238,6 +238,13 @@ function KeywordList({ label, items, variant }: { label: string; items: string[]
   );
 }
 
+function cnTpl(active: boolean, available: boolean) {
+  const base = "rounded-full border px-3 py-1 text-xs font-medium transition-colors";
+  if (active) return base + " border-primary bg-primary text-primary-foreground";
+  if (!available) return base + " border-dashed text-muted-foreground/70";
+  return base + " hover:bg-muted";
+}
+
 function ListSection<T>({ title, items, onChange, blank, render }: {
   title: string; items: T[]; onChange: (v: T[]) => void; blank: T;
   render: (it: T, set: (v: T) => void) => React.ReactNode;
