@@ -85,9 +85,12 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               <span className="text-[10px] text-sidebar-foreground/60 truncate">{email}</span>
             </div>
           </Link>
-          <Button onClick={signOut} variant="ghost" size="sm" className="w-full justify-start gap-2">
-            <LogOut className="h-4 w-4" /> Sign out
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button onClick={signOut} variant="ghost" size="sm" className="flex-1 justify-start gap-2">
+              <LogOut className="h-4 w-4" /> Sign out
+            </Button>
+            <ThemeToggle />
+          </div>
         </div>
       </aside>
       <main className="flex-1 overflow-x-hidden">
@@ -102,6 +105,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                   <User className="h-4 w-4 text-muted-foreground" />
                 )}
               </Link>
+              <ThemeToggle />
               <Button size="sm" variant="ghost" onClick={signOut}><LogOut className="h-4 w-4" /></Button>
             </div>
           </div>
