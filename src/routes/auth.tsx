@@ -94,6 +94,7 @@ function AuthPage() {
                   <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} maxLength={128} />
                 </div>
                 <Button type="submit" disabled={loading} className="w-full bg-gradient-hero">{loading ? "Signing in…" : "Sign in"}</Button>
+                <p className="text-center text-xs"><Link to="/forgot-password" className="text-muted-foreground underline hover:text-foreground">Forgot your password?</Link></p>
               </form>
             </TabsContent>
 

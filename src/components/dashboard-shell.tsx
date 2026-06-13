@@ -1,6 +1,7 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { type ReactNode, useEffect, useState } from "react";
-import { Bell, Briefcase, FileText, KanbanSquare, LayoutDashboard, Mail, MessagesSquare, User, LogOut } from "lucide-react";
+import { Bell, Briefcase, FileText, KanbanSquare, LayoutDashboard, Mail, MessagesSquare, User, LogOut, BarChart3 } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import logo from "@/assets/jobtrack-ai-logo.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ const nav = [
   { to: "/alerts", label: "Alerts", icon: Bell },
   { to: "/resumes", label: "Resumes", icon: FileText },
   { to: "/tracker", label: "Tracker", icon: KanbanSquare },
+  { to: "/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/interview", label: "Interview", icon: MessagesSquare },
   { to: "/cover-letters", label: "Cover Letters", icon: Mail },
   { to: "/profile", label: "Profile", icon: User },
@@ -83,9 +85,12 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               <span className="text-[10px] text-sidebar-foreground/60 truncate">{email}</span>
             </div>
           </Link>
-          <Button onClick={signOut} variant="ghost" size="sm" className="w-full justify-start gap-2">
-            <LogOut className="h-4 w-4" /> Sign out
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button onClick={signOut} variant="ghost" size="sm" className="flex-1 justify-start gap-2">
+              <LogOut className="h-4 w-4" /> Sign out
+            </Button>
+            <ThemeToggle />
+          </div>
         </div>
       </aside>
       <main className="flex-1 overflow-x-hidden">
@@ -100,6 +105,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                   <User className="h-4 w-4 text-muted-foreground" />
                 )}
               </Link>
+              <ThemeToggle />
               <Button size="sm" variant="ghost" onClick={signOut}><LogOut className="h-4 w-4" /></Button>
             </div>
           </div>
