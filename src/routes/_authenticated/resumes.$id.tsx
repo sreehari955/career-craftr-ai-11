@@ -13,9 +13,10 @@ import { Switch } from "@/components/ui/switch";
 import { getResume, upsertResume } from "@/lib/api/resumes.functions";
 import { scoreResumeATS } from "@/lib/api/ai.functions";
 import { listJobs } from "@/lib/api/jobs.functions";
-import { ArrowLeft, Plus, Save, Sparkles, Trash2, X, Wand2, Download, GitBranch } from "lucide-react";
+import { ArrowLeft, Plus, Save, Sparkles, Trash2, X, Wand2, Download, GitBranch, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { downloadResumePdf } from "@/lib/resume-pdf";
+import { ResumePreview, TEMPLATES, type TemplateId } from "@/components/resume-preview";
 
 export const Route = createFileRoute("/_authenticated/resumes/$id")({
   component: ResumeEditor,
@@ -50,6 +51,8 @@ function ResumeEditor() {
   const [jobId, setJobId] = useState<string>("none");
   const [content, setContent] = useState<Content>(blank);
   const [feedback, setFeedback] = useState<Awaited<ReturnType<typeof score>> | null>(null);
+  const [template, setTemplate] = useState<TemplateId>("modern");
+  const [showPreview, setShowPreview] = useState(true);
 
   useEffect(() => {
     if (resume) {
@@ -95,11 +98,38 @@ function ResumeEditor() {
             <Switch checked={isMaster} onCheckedChange={setIsMaster} id="master" />
             <Label htmlFor="master">Master resume</Label>
           </div>
+          <Button variant="outline" size="sm" onClick={() => setShowPreview((v) => !v)}>
+            <Eye className="mr-1 h-4 w-4" /> {showPreview ? "Hide preview" : "Show preview"}
+          </Button>
           <Button asChild variant="outline" size="sm"><Link to="/resume-history/$id" params={{ id }}><GitBranch className="mr-1 h-4 w-4" /> History</Link></Button>
           <Button variant="outline" size="sm" onClick={() => downloadResumePdf(name, content, undefined)}><Download className="mr-1 h-4 w-4" /> PDF</Button>
           <Button onClick={() => saveMut.mutate()} disabled={saveMut.isPending}><Save className="mr-1 h-4 w-4" /> Save</Button>
         </div>
       </div>
+
+      {showPreview && (
+        <Card className="overflow-hidden bg-slate-100 p-0">
+          <div className="flex flex-wrap items-center gap-2 border-b bg-white px-4 py-3">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Template</span>
+            {TEMPLATES.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTemplate(t.id)}
+                className={cnTpl(template === t.id, t.available)}
+                title={t.description}
+              >
+                {t.name}{!t.available && <span className="ml-1 text-[10px] opacity-70">(soon)</span>}
+              </button>
+            ))}
+            <span className="ml-auto text-xs text-muted-foreground">Hardcopy preview · A4</span>
+          </div>
+          <div className="max-h-[820px] overflow-auto p-6 md:p-10">
+            <div className="origin-top" style={{ transform: "scale(0.85)", transformOrigin: "top center" }}>
+              <ResumePreview template={template} name={name} content={content} />
+            </div>
+          </div>
+        </Card>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-5 lg:col-span-2">
