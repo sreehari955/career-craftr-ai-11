@@ -6,3 +6,8 @@ Disallow: /jobs
 Disallow: /resumes
 Disallow: /tracker
 Disallow: /cover-letters
+
+Disallow: /admin
+Disallow: /alerts
+Disallow: /interview
+Disallow: /resume-history

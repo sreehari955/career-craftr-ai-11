@@ -1,8 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { JTLogo } from "@/components/jt-logo";
 
 export function SiteHeader() {
   const [signedIn, setSignedIn] = useState(false);
@@ -13,13 +13,10 @@ export function SiteHeader() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-hero text-primary-foreground shadow-soft">
-            <Sparkles className="h-4 w-4" />
-          </span>
-          JobTrack-AI
+    <header className="sticky top-0 z-40 w-full border-b bg-background/85 backdrop-blur-md">
+      <div className="container mx-auto flex h-20 items-center justify-between px-4">
+        <Link to="/" aria-label="JobTrack-AI home">
+          <JTLogo size="lg" />
         </Link>
         <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
           <Link to="/features" className="hover:text-foreground">Features</Link>
