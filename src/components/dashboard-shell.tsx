@@ -1,6 +1,7 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { type ReactNode, useEffect, useState } from "react";
-import { Bell, Briefcase, FileText, KanbanSquare, LayoutDashboard, Mail, MessagesSquare, Sparkles, User, LogOut } from "lucide-react";
+import { Bell, Briefcase, FileText, KanbanSquare, LayoutDashboard, Mail, MessagesSquare, User, LogOut, Shield } from "lucide-react";
+import { JTLogo } from "@/components/jt-logo";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,7 @@ const nav = [
   { to: "/interview", label: "Interview", icon: MessagesSquare },
   { to: "/cover-letters", label: "Cover Letters", icon: Mail },
   { to: "/profile", label: "Profile", icon: User },
+  { to: "/admin", label: "Admin", icon: Shield },
 ] as const;
 
 export function DashboardShell({ children }: { children: ReactNode }) {
@@ -46,11 +48,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen bg-muted/30">
       <aside className="hidden w-64 shrink-0 flex-col border-r bg-sidebar md:flex">
-        <Link to="/dashboard" className="flex items-center gap-2 px-5 py-5 font-display text-lg font-bold">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-hero text-primary-foreground shadow-soft">
-            <Sparkles className="h-4 w-4" />
-          </span>
-          JobTrack-AI
+        <Link to="/dashboard" className="flex items-center px-5 py-5">
+          <JTLogo size="md" />
         </Link>
         <nav className="flex-1 space-y-1 px-3">
           {nav.map((item) => {
@@ -93,7 +92,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       <main className="flex-1 overflow-x-hidden">
         <div className="border-b bg-background/80 px-4 py-3 backdrop-blur md:hidden">
           <div className="flex items-center justify-between">
-            <Link to="/dashboard" className="font-display font-bold">JobTrack-AI</Link>
+            <Link to="/dashboard"><JTLogo size="sm" /></Link>
             <div className="flex items-center gap-2">
               <Link to="/profile" className="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-border bg-muted flex items-center justify-center">
                 {profile?.avatar_url ? (
