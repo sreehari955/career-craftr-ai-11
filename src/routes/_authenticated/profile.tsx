@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -21,7 +21,6 @@ type Profile = NonNullable<Awaited<ReturnType<typeof getProfile>>>;
 
 function ProfilePage() {
   const qc = useQueryClient();
-  const navigate = useNavigate();
   const fetchProfile = useServerFn(getProfile);
   const saveProfile = useServerFn(updateProfile);
   const { data, isLoading } = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
@@ -58,8 +57,10 @@ function ProfilePage() {
       }
 
       try {
+        // Try to update with avatar_url
         return await saveProfile({ data: { ...vals, onboarded: true } as never });
       } catch (err: any) {
+        // If it failed because of avatar_url column missing, retry without it
         if (err.message?.includes("avatar_url") || err.message?.includes("schema cache") || err.message?.includes("column")) {
           const { avatar_url, ...rest } = vals;
           return await saveProfile({ data: { ...rest, onboarded: true } as never });
@@ -67,10 +68,10 @@ function ProfilePage() {
         throw err;
       }
     },
-    onSuccess: () => {
-      toast.success("Profile saved");
-      qc.invalidateQueries({ queryKey: ["profile"] });
-      router.navigate({ to: "/dashboard" });
+    onSuccess: () => { 
+      toast.success("Profile saved"); 
+      qc.invalidateQueries({ queryKey: ["profile"] }); 
+      router.navigate({ to: "/dashboard" }); 
     },
     onError: (e: Error) => toast.error(e.message),
   });

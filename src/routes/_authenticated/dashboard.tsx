@@ -24,10 +24,10 @@ function Dashboard() {
   const byStatus = (s: string) => apps.filter((a) => a.status === s).length;
 
   const stats = [
-    { label: "Total Applications", value: apps.length, icon: Briefcase, to: "/tracker" },
-    { label: "Interviews", value: byStatus("interview"), icon: KanbanSquare, to: "/tracker" },
+    { label: "Resumes", value: resumes.length, icon: FileText, to: "/resumes" },
+    { label: "Saved roles", value: byStatus("saved"), icon: Briefcase, to: "/tracker" },
+    { label: "In progress", value: byStatus("applied") + byStatus("interview"), icon: KanbanSquare, to: "/tracker" },
     { label: "Offers", value: byStatus("offer"), icon: Sparkles, to: "/tracker" },
-    { label: "Rejections", value: byStatus("rejected"), icon: FileText, to: "/tracker" },
   ];
 
   return (

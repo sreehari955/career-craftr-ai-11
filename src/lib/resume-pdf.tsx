@@ -1,6 +1,5 @@
 import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer";
-import pkg from "file-saver";
-const { saveAs } = pkg;
+import { saveAs } from "file-saver";
 import type { ResumeContentT } from "./api/resumes.functions";
 
 const styles = StyleSheet.create({
