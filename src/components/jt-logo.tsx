@@ -1,4 +1,4 @@
-import jtLogo from "@/assets/jt-logo.jpg.asset.json";
+import jtLogo from "@/assets/jt-logo.png.asset.json";
 import { cn } from "@/lib/utils";
 
 type Size = "sm" | "md" | "lg" | "xl";
