@@ -253,10 +253,12 @@ export type Database = {
           location: string
           mode: string
           posted_at: string
+          posted_by: string | null
           requirements: string[] | null
           skills: string[] | null
           stipend: string | null
           title: string
+          updated_at: string
         }
         Insert: {
           apply_url?: string | null
@@ -267,10 +269,12 @@ export type Database = {
           location: string
           mode: string
           posted_at?: string
+          posted_by?: string | null
           requirements?: string[] | null
           skills?: string[] | null
           stipend?: string | null
           title: string
+          updated_at?: string
         }
         Update: {
           apply_url?: string | null
@@ -281,10 +285,12 @@ export type Database = {
           location?: string
           mode?: string
           posted_at?: string
+          posted_by?: string | null
           requirements?: string[] | null
           skills?: string[] | null
           stipend?: string | null
           title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -519,9 +525,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      my_roles: {
+        Args: never
+        Returns: Database["public"]["Enums"]["app_role"][]
+      }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "recruiter"
       application_status:
         | "saved"
         | "applied"
@@ -655,7 +665,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "recruiter"],
       application_status: [
         "saved",
         "applied",
