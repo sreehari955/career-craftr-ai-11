@@ -139,3 +139,78 @@ export const adminGrantSelf = createServerFn({ method: "POST" })
       .upsert({ user_id: context.userId, role: "admin" }, { onConflict: "user_id,role" });
     return { ok: true };
   });
+
+export const adminGrantRole = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({
+      passcode: z.string().min(1).max(200),
+      email: z.string().email().max(255),
+      role: z.enum(["admin", "recruiter", "moderator"]),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, data.passcode);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: list, error: listErr } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    if (listErr) throw new Error(listErr.message);
+    const user = list.users.find((u) => u.email?.toLowerCase() === data.email.toLowerCase());
+    if (!user) throw new Error("No user found with that email");
+    const { error } = await supabaseAdmin
+      .from("user_roles")
+      .upsert({ user_id: user.id, role: data.role }, { onConflict: "user_id,role" });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const adminRevokeRole = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({
+      passcode: z.string().min(1).max(200),
+      user_id: z.string().uuid(),
+      role: z.enum(["admin", "recruiter", "moderator"]),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, data.passcode);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("user_roles")
+      .delete()
+      .eq("user_id", data.user_id)
+      .eq("role", data.role);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const adminListRoles = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ passcode: z.string().min(1).max(200) }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, data.passcode);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
+      .from("user_roles")
+      .select("id, user_id, role, created_at")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    const ids = Array.from(new Set((rows ?? []).map((r) => r.user_id)));
+    const { data: profs } = await supabaseAdmin.from("profiles").select("id, full_name").in("id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]);
+    const nameMap = new Map((profs ?? []).map((p) => [p.id, p.full_name]));
+    return (rows ?? []).map((r) => ({ ...r, full_name: nameMap.get(r.user_id) ?? null }));
+  });
+
+export const adminListAllJobs = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ passcode: z.string().min(1).max(200) }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId, data.passcode);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
+      .from("jobs")
+      .select("*")
+      .order("posted_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
