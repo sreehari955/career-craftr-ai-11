@@ -1,13 +1,13 @@
-import jtLogo from "@/assets/jt-logo.png";
+import jtLogo from "@/assets/jt-logo.jpg.asset.json";
 import { cn } from "@/lib/utils";
 
 type Size = "sm" | "md" | "lg" | "xl";
 
 const sizes: Record<Size, { img: string; text: string }> = {
-  sm: { img: "h-8 w-8", text: "text-base" },
-  md: { img: "h-10 w-10", text: "text-lg" },
-  lg: { img: "h-12 w-12 md:h-14 md:w-14", text: "text-xl md:text-2xl" },
-  xl: { img: "h-16 w-16 md:h-20 md:w-20", text: "text-2xl md:text-3xl" },
+  sm: { img: "h-9 w-9", text: "text-base" },
+  md: { img: "h-11 w-11", text: "text-lg" },
+  lg: { img: "h-14 w-14 md:h-16 md:w-16", text: "text-xl md:text-2xl" },
+  xl: { img: "h-20 w-20 md:h-24 md:w-24", text: "text-2xl md:text-3xl" },
 };
 
 export function JTLogo({
@@ -25,11 +25,9 @@ export function JTLogo({
   return (
     <span className={cn("flex items-center gap-3", className)}>
       <img
-        src={jtLogo}
+        src={jtLogo.url}
         alt="JT — JobTrack-AI logo"
-        width={512}
-        height={512}
-        className={cn("shrink-0 select-none drop-shadow-[0_4px_14px_rgba(37,99,235,0.35)]", s.img)}
+        className={cn("shrink-0 select-none object-contain", s.img)}
         loading="eager"
       />
       {showText && (
