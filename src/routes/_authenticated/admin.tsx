@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, ShieldCheck, KeyRound, Users, IndianRupee, FileText, Briefcase, Settings as SettingsIcon } from "lucide-react";
+import { Shield, ShieldCheck, KeyRound, Users, IndianRupee, FileText, Briefcase, Settings as SettingsIcon, Plus, Pencil, Trash2, UserPlus, X } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import {
   checkAdminAccess,
@@ -18,7 +18,15 @@ import {
   adminGetSettings,
   adminUpdateSetting,
   adminGrantSelf,
+  adminGrantRole,
+  adminRevokeRole,
+  adminListRoles,
+  adminListAllJobs,
 } from "@/lib/api/admin.functions";
+import { upsertJob, deleteJob } from "@/lib/api/jobs.functions";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { JobForm, emptyJob, type JobFormValue } from "@/components/job-form";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -148,12 +156,13 @@ function AdminConsole({ passcode }: { passcode: string }) {
         <StatCard icon={IndianRupee} label="Revenue" value={`₹${stats?.revenueInr ?? 0}`} />
       </div>
 
-      <Tabs defaultValue="users">
-        <TabsList>
-          <TabsTrigger value="users"><Users className="mr-1 h-4 w-4" /> Users</TabsTrigger>
-          <TabsTrigger value="payments"><IndianRupee className="mr-1 h-4 w-4" /> Payments</TabsTrigger>
-          <TabsTrigger value="settings"><SettingsIcon className="mr-1 h-4 w-4" /> Site Settings</TabsTrigger>
+      <Tabs defaultValue="jobs">
+        <TabsList className="flex-wrap">
           <TabsTrigger value="jobs"><Briefcase className="mr-1 h-4 w-4" /> Jobs</TabsTrigger>
+          <TabsTrigger value="users"><Users className="mr-1 h-4 w-4" /> Users</TabsTrigger>
+          <TabsTrigger value="roles"><Shield className="mr-1 h-4 w-4" /> Roles</TabsTrigger>
+          <TabsTrigger value="payments"><IndianRupee className="mr-1 h-4 w-4" /> Payments</TabsTrigger>
+          <TabsTrigger value="settings"><SettingsIcon className="mr-1 h-4 w-4" /> Site</TabsTrigger>
         </TabsList>
 
         <TabsContent value="users" className="mt-4">
@@ -227,11 +236,140 @@ function AdminConsole({ passcode }: { passcode: string }) {
         </TabsContent>
 
         <TabsContent value="jobs" className="mt-4">
-          <Card className="p-6 text-sm text-muted-foreground">
-            Job posting management lives in the dashboard <code>/jobs</code> view. Bulk admin moderation tools will land here next.
-          </Card>
+          <AdminJobsTab passcode={passcode} />
+        </TabsContent>
+        <TabsContent value="roles" className="mt-4">
+          <AdminRolesTab passcode={passcode} />
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function AdminJobsTab({ passcode }: { passcode: string }) {
+  const listFn = useServerFn(adminListAllJobs);
+  const upsert = useServerFn(upsertJob);
+  const del = useServerFn(deleteJob);
+  const qc = useQueryClient();
+  const [editing, setEditing] = useState<JobFormValue | null>(null);
+  const { data: jobs = [] } = useQuery({ queryKey: ["admin-jobs"], queryFn: () => listFn({ data: { passcode } }) });
+
+  const saveMut = useMutation({
+    mutationFn: (v: JobFormValue) => upsert({ data: v }),
+    onSuccess: () => { toast.success("Job saved"); setEditing(null); qc.invalidateQueries({ queryKey: ["admin-jobs"] }); qc.invalidateQueries({ queryKey: ["jobs"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const delMut = useMutation({
+    mutationFn: (id: string) => del({ data: { id } }),
+    onSuccess: () => { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["admin-jobs"] }); qc.invalidateQueries({ queryKey: ["jobs"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <div className="space-y-3">
+      <div className="flex justify-end">
+        <Button onClick={() => setEditing(emptyJob())} className="bg-gradient-hero"><Plus className="mr-1 h-4 w-4" /> New job</Button>
+      </div>
+      <Card className="p-0">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="border-b bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <tr><th className="px-4 py-2">Title</th><th className="px-4 py-2">Company</th><th className="px-4 py-2">Type</th><th className="px-4 py-2">Location</th><th className="px-4 py-2">Posted</th><th className="px-4 py-2"></th></tr>
+            </thead>
+            <tbody>
+              {jobs.map((j) => (
+                <tr key={j.id} className="border-b last:border-0">
+                  <td className="px-4 py-2 font-medium">{j.title}</td>
+                  <td className="px-4 py-2">{j.company}</td>
+                  <td className="px-4 py-2"><Badge variant="secondary">{j.job_type}</Badge> <Badge variant="outline">{j.mode}</Badge></td>
+                  <td className="px-4 py-2 text-muted-foreground">{j.location}</td>
+                  <td className="px-4 py-2 text-muted-foreground">{new Date(j.posted_at).toLocaleDateString()}</td>
+                  <td className="px-4 py-2">
+                    <div className="flex justify-end gap-1">
+                      <Button size="sm" variant="outline" onClick={() => setEditing({
+                        id: j.id, title: j.title, company: j.company, location: j.location, job_type: j.job_type, mode: j.mode,
+                        description: j.description, requirements: j.requirements ?? [], skills: j.skills ?? [], stipend: j.stipend, apply_url: j.apply_url,
+                      })}><Pencil className="h-4 w-4" /></Button>
+                      <Button size="sm" variant="ghost" className="text-destructive" onClick={() => { if (confirm(`Delete "${j.title}"?`)) delMut.mutate(j.id); }}><Trash2 className="h-4 w-4" /></Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {jobs.length === 0 && <tr><td colSpan={6} className="px-4 py-6 text-center text-muted-foreground">No jobs yet.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+      <Dialog open={!!editing} onOpenChange={(o) => { if (!o) setEditing(null); }}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>{editing?.id ? "Edit job" : "New job"}</DialogTitle></DialogHeader>
+          {editing && <JobForm initial={editing} submitting={saveMut.isPending} onCancel={() => setEditing(null)} onSubmit={(v) => saveMut.mutate(v)} submitLabel={editing.id ? "Update job" : "Publish job"} />}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function AdminRolesTab({ passcode }: { passcode: string }) {
+  const listFn = useServerFn(adminListRoles);
+  const grant = useServerFn(adminGrantRole);
+  const revoke = useServerFn(adminRevokeRole);
+  const qc = useQueryClient();
+  const { data: roles = [] } = useQuery({ queryKey: ["admin-roles"], queryFn: () => listFn({ data: { passcode } }) });
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<"admin" | "recruiter" | "moderator">("recruiter");
+
+  const grantMut = useMutation({
+    mutationFn: () => grant({ data: { passcode, email, role } }),
+    onSuccess: () => { toast.success(`Granted ${role} to ${email}`); setEmail(""); qc.invalidateQueries({ queryKey: ["admin-roles"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const revokeMut = useMutation({
+    mutationFn: (v: { user_id: string; role: "admin" | "recruiter" | "moderator" }) => revoke({ data: { passcode, ...v } }),
+    onSuccess: () => { toast.success("Role revoked"); qc.invalidateQueries({ queryKey: ["admin-roles"] }); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <div className="space-y-4">
+      <Card className="p-5">
+        <h3 className="font-semibold flex items-center gap-2"><UserPlus className="h-4 w-4" /> Grant role</h3>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Input className="min-w-[240px] flex-1" type="email" placeholder="user@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Select value={role} onValueChange={(v: "admin" | "recruiter" | "moderator") => setRole(v)}>
+            <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recruiter">Recruiter</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="moderator">Moderator</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={() => grantMut.mutate()} disabled={!email || grantMut.isPending}>Grant</Button>
+        </div>
+      </Card>
+      <Card className="p-0">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="border-b bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <tr><th className="px-4 py-2">Name</th><th className="px-4 py-2">User ID</th><th className="px-4 py-2">Role</th><th className="px-4 py-2">Granted</th><th className="px-4 py-2"></th></tr>
+            </thead>
+            <tbody>
+              {roles.map((r) => (
+                <tr key={r.id} className="border-b last:border-0">
+                  <td className="px-4 py-2">{r.full_name || "—"}</td>
+                  <td className="px-4 py-2 font-mono text-xs text-muted-foreground">{r.user_id.slice(0, 8)}…</td>
+                  <td className="px-4 py-2"><Badge>{r.role}</Badge></td>
+                  <td className="px-4 py-2 text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</td>
+                  <td className="px-4 py-2 text-right">
+                    <Button size="sm" variant="ghost" className="text-destructive" onClick={() => { if (confirm(`Revoke ${r.role}?`)) revokeMut.mutate({ user_id: r.user_id, role: r.role as "admin" | "recruiter" | "moderator" }); }}><X className="h-4 w-4" /></Button>
+                  </td>
+                </tr>
+              ))}
+              {roles.length === 0 && <tr><td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">No roles assigned yet.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </Card>
     </div>
   );
 }
