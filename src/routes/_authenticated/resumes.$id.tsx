@@ -141,6 +141,19 @@ function ResumeEditor() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-5 lg:col-span-2">
           <Card className="p-5">
+            <h3 className="font-semibold">Contact</h3>
+            <p className="mt-1 text-xs text-muted-foreground">Recruiters and ATS systems scan these first. Use a professional email and full URLs.</p>
+            <div className="mt-3 grid gap-2 md:grid-cols-2">
+              <Input value={content.contact.email} onChange={(e) => upd("contact", { ...content.contact, email: e.target.value })} placeholder="Email (you@example.com)" maxLength={200} type="email" />
+              <Input value={content.contact.phone} onChange={(e) => upd("contact", { ...content.contact, phone: e.target.value })} placeholder="Phone (+91 9XXXXXXXXX)" maxLength={50} />
+              <Input value={content.contact.location} onChange={(e) => upd("contact", { ...content.contact, location: e.target.value })} placeholder="Location (City, Country)" maxLength={200} />
+              <Input value={content.contact.linkedin} onChange={(e) => upd("contact", { ...content.contact, linkedin: e.target.value })} placeholder="LinkedIn URL" maxLength={300} />
+              <Input value={content.contact.github} onChange={(e) => upd("contact", { ...content.contact, github: e.target.value })} placeholder="GitHub URL" maxLength={300} />
+              <Input value={content.contact.website} onChange={(e) => upd("contact", { ...content.contact, website: e.target.value })} placeholder="Portfolio / Website" maxLength={300} />
+            </div>
+          </Card>
+
+          <Card className="p-5">
             <Label>Professional summary</Label>
             <Textarea className="mt-2" rows={3} value={content.summary} onChange={(e) => upd("summary", e.target.value)} maxLength={2000} placeholder="2-3 sentences about who you are and what you're looking for." />
           </Card>
