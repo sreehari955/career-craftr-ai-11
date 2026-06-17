@@ -193,6 +193,7 @@ function ResumeEditor() {
           <StringListSection title="Skills" items={content.skills} onChange={(v) => upd("skills", v)} placeholder="React, Python…" />
           <StringListSection title="Certifications" items={content.certifications} onChange={(v) => upd("certifications", v)} placeholder="AWS Cloud Practitioner…" />
           <StringListSection title="Achievements" items={content.achievements} onChange={(v) => upd("achievements", v)} placeholder="Won Smart India Hackathon 2024…" />
+          <StringListSection title="Languages" items={content.languages} onChange={(v) => upd("languages", v)} placeholder="English (Fluent), Hindi (Native)…" />
         </div>
 
         <div className="space-y-5">
