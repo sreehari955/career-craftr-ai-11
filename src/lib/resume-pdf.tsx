@@ -152,6 +152,7 @@ function ClassicDoc({ content, name, contact }: { content: ResumeContentT; name:
         {content.skills.length > 0 && (<View style={classic.section}><Text style={classic.h2}>Skills</Text><Text style={{ textAlign: "center" }}>{content.skills.join(" • ")}</Text></View>)}
         {content.certifications.length > 0 && (<View style={classic.section}><Text style={classic.h2}>Certifications</Text><Bullets items={content.certifications} /></View>)}
         {content.achievements.length > 0 && (<View style={classic.section}><Text style={classic.h2}>Honors & Achievements</Text><Bullets items={content.achievements} /></View>)}
+        {(content.languages?.length ?? 0) > 0 && (<View style={classic.section}><Text style={classic.h2}>Languages</Text><Text style={{ textAlign: "center" }}>{content.languages!.join(" • ")}</Text></View>)}
       </Page>
     </Document>
   );
