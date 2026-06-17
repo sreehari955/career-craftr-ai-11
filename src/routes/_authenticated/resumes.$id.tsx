@@ -132,7 +132,7 @@ function ResumeEditor() {
           </div>
           <div className="max-h-[820px] overflow-auto p-6 md:p-10">
             <div className="origin-top" style={{ transform: "scale(0.85)", transformOrigin: "top center" }}>
-              <ResumePreview template={template} name={name} content={content} />
+              <ResumePreview template={template} name={name} contact={contactLine} content={content} />
             </div>
           </div>
         </Card>
