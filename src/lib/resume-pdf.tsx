@@ -91,6 +91,7 @@ function ModernDoc({ content, name, contact }: { content: ResumeContentT; name: 
         {content.skills.length > 0 && (<View style={modern.section}><Text style={modern.h2}>Skills</Text><Text style={modern.para}>{content.skills.join(" · ")}</Text></View>)}
         {content.certifications.length > 0 && (<View style={modern.section}><Text style={modern.h2}>Certifications</Text><Bullets items={content.certifications} /></View>)}
         {content.achievements.length > 0 && (<View style={modern.section}><Text style={modern.h2}>Achievements</Text><Bullets items={content.achievements} /></View>)}
+        {(content.languages?.length ?? 0) > 0 && (<View style={modern.section}><Text style={modern.h2}>Languages</Text><Text style={modern.para}>{content.languages!.join(" · ")}</Text></View>)}
       </Page>
     </Document>
   );
