@@ -267,6 +267,14 @@ function CreativeTemplate({ name, contact, content }: { name: string; contact?: 
             </ul>
           </>
         )}
+        {(content.languages?.length ?? 0) > 0 && (
+          <>
+            <SH light>Languages</SH>
+            <ul className="space-y-1 text-[12px] text-blue-50">
+              {content.languages!.map((l, i) => <li key={i}>{l}</li>)}
+            </ul>
+          </>
+        )}
       </aside>
       {/* Main */}
       <main className="px-9 py-10">
