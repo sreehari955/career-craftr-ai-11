@@ -158,6 +158,7 @@ function ClassicTemplate({ name, contact, content }: { name: string; contact?: s
       {content.skills.length > 0 && (<><SH>Skills</SH><p className="text-center text-[12.5px]">{content.skills.join(" • ")}</p></>)}
       {content.certifications.length > 0 && (<><SH>Certifications</SH><Bullets items={content.certifications} color="text-slate-800" /></>)}
       {content.achievements.length > 0 && (<><SH>Honors & Achievements</SH><Bullets items={content.achievements} color="text-slate-800" /></>)}
+      {(content.languages?.length ?? 0) > 0 && (<><SH>Languages</SH><p className="text-center text-[12.5px]">{content.languages!.join(" • ")}</p></>)}
     </div>
   );
 }
