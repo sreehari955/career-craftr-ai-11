@@ -107,6 +107,7 @@ function ModernTemplate({ name, contact, content }: { name: string; contact?: st
       {content.skills.length > 0 && (<><SH>Skills</SH><p className="text-[12.5px] text-slate-700">{content.skills.join(" · ")}</p></>)}
       {content.certifications.length > 0 && (<><SH>Certifications</SH><Bullets items={content.certifications} /></>)}
       {content.achievements.length > 0 && (<><SH>Achievements</SH><Bullets items={content.achievements} /></>)}
+      {(content.languages?.length ?? 0) > 0 && (<><SH>Languages</SH><p className="text-[12.5px] text-slate-700">{content.languages!.join(" · ")}</p></>)}
     </div>
   );
 }
