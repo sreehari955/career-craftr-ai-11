@@ -3,7 +3,16 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const Bullet = z.string().max(500);
+const Contact = z.object({
+  email: z.string().max(200).optional().default(""),
+  phone: z.string().max(50).optional().default(""),
+  location: z.string().max(200).optional().default(""),
+  linkedin: z.string().max(300).optional().default(""),
+  website: z.string().max(300).optional().default(""),
+  github: z.string().max(300).optional().default(""),
+}).optional().default({ email: "", phone: "", location: "", linkedin: "", website: "", github: "" });
 const ResumeContent = z.object({
+  contact: Contact,
   summary: z.string().max(2000).optional().default(""),
   education: z.array(z.object({
     school: z.string().max(200),
@@ -25,7 +34,13 @@ const ResumeContent = z.object({
   skills: z.array(z.string().max(60)).max(80).optional().default([]),
   certifications: z.array(z.string().max(200)).max(20).optional().default([]),
   achievements: z.array(z.string().max(300)).max(20).optional().default([]),
+  languages: z.array(z.string().max(60)).max(20).optional().default([]),
 });
+
+export function buildContactLine(c?: { email?: string; phone?: string; location?: string; linkedin?: string; website?: string; github?: string }) {
+  if (!c) return "";
+  return [c.email, c.phone, c.location, c.linkedin, c.website, c.github].map((v) => (v ?? "").trim()).filter(Boolean).join(" · ");
+}
 
 export type ResumeContentT = z.infer<typeof ResumeContent>;
 

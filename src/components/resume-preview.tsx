@@ -107,6 +107,7 @@ function ModernTemplate({ name, contact, content }: { name: string; contact?: st
       {content.skills.length > 0 && (<><SH>Skills</SH><p className="text-[12.5px] text-slate-700">{content.skills.join(" · ")}</p></>)}
       {content.certifications.length > 0 && (<><SH>Certifications</SH><Bullets items={content.certifications} /></>)}
       {content.achievements.length > 0 && (<><SH>Achievements</SH><Bullets items={content.achievements} /></>)}
+      {(content.languages?.length ?? 0) > 0 && (<><SH>Languages</SH><p className="text-[12.5px] text-slate-700">{content.languages!.join(" · ")}</p></>)}
     </div>
   );
 }
@@ -157,6 +158,7 @@ function ClassicTemplate({ name, contact, content }: { name: string; contact?: s
       {content.skills.length > 0 && (<><SH>Skills</SH><p className="text-center text-[12.5px]">{content.skills.join(" • ")}</p></>)}
       {content.certifications.length > 0 && (<><SH>Certifications</SH><Bullets items={content.certifications} color="text-slate-800" /></>)}
       {content.achievements.length > 0 && (<><SH>Honors & Achievements</SH><Bullets items={content.achievements} color="text-slate-800" /></>)}
+      {(content.languages?.length ?? 0) > 0 && (<><SH>Languages</SH><p className="text-center text-[12.5px]">{content.languages!.join(" • ")}</p></>)}
     </div>
   );
 }
@@ -211,6 +213,7 @@ function MinimalistTemplate({ name, contact, content }: { name: string; contact?
       {content.skills.length > 0 && (<><SH>Skills</SH><p className="text-[12.5px] leading-relaxed text-slate-700">{content.skills.join("   ·   ")}</p></>)}
       {content.certifications.length > 0 && (<><SH>Certifications</SH><Bullets items={content.certifications} color="text-slate-400" /></>)}
       {content.achievements.length > 0 && (<><SH>Achievements</SH><Bullets items={content.achievements} color="text-slate-400" /></>)}
+      {(content.languages?.length ?? 0) > 0 && (<><SH>Languages</SH><p className="text-[12.5px] leading-relaxed text-slate-700">{content.languages!.join("   ·   ")}</p></>)}
     </div>
   );
 }
@@ -261,6 +264,14 @@ function CreativeTemplate({ name, contact, content }: { name: string; contact?: 
             <SH light>Achievements</SH>
             <ul className="space-y-1 text-[12px] text-blue-50">
               {content.achievements.map((a, i) => <li key={i}>• {a}</li>)}
+            </ul>
+          </>
+        )}
+        {(content.languages?.length ?? 0) > 0 && (
+          <>
+            <SH light>Languages</SH>
+            <ul className="space-y-1 text-[12px] text-blue-50">
+              {content.languages!.map((l, i) => <li key={i}>{l}</li>)}
             </ul>
           </>
         )}

@@ -17,12 +17,15 @@ import { ArrowLeft, Plus, Save, Sparkles, Trash2, X, Wand2, Download, GitBranch,
 import { toast } from "sonner";
 import { downloadResumePdf } from "@/lib/resume-pdf";
 import { ResumePreview, TEMPLATES, type TemplateId } from "@/components/resume-preview";
+import { buildContactLine } from "@/lib/api/resumes.functions";
 
 export const Route = createFileRoute("/_authenticated/resumes/$id")({
   component: ResumeEditor,
 });
 
+type ContactT = { email: string; phone: string; location: string; linkedin: string; website: string; github: string };
 type Content = {
+  contact: ContactT;
   summary: string;
   education: { school: string; degree: string; year: string; details: string }[];
   experience: { role: string; company: string; period: string; bullets: string[] }[];
@@ -30,9 +33,11 @@ type Content = {
   skills: string[];
   certifications: string[];
   achievements: string[];
+  languages: string[];
 };
 
-const blank: Content = { summary: "", education: [], experience: [], projects: [], skills: [], certifications: [], achievements: [] };
+const blankContact: ContactT = { email: "", phone: "", location: "", linkedin: "", website: "", github: "" };
+const blank: Content = { contact: blankContact, summary: "", education: [], experience: [], projects: [], skills: [], certifications: [], achievements: [], languages: [] };
 
 function ResumeEditor() {
   const { id } = Route.useParams();
@@ -60,10 +65,12 @@ function ResumeEditor() {
       setIsMaster(resume.is_master);
       setJobId(resume.job_id ?? "none");
       const c = (resume.content ?? {}) as Partial<Content>;
-      setContent({ ...blank, ...c });
+      setContent({ ...blank, ...c, contact: { ...blankContact, ...(c.contact ?? {}) } });
       setFeedback(resume.ats_feedback as Awaited<ReturnType<typeof score>> | null);
     }
   }, [resume]);
+
+  const contactLine = buildContactLine(content.contact);
 
   const saveMut = useMutation({
     mutationFn: async () => save({ data: { id, name, is_master: isMaster, job_id: jobId === "none" ? null : jobId, content } }),
@@ -102,7 +109,7 @@ function ResumeEditor() {
             <Eye className="mr-1 h-4 w-4" /> {showPreview ? "Hide preview" : "Show preview"}
           </Button>
           <Button asChild variant="outline" size="sm"><Link to="/resume-history/$id" params={{ id }}><GitBranch className="mr-1 h-4 w-4" /> History</Link></Button>
-          <Button variant="outline" size="sm" onClick={() => downloadResumePdf(name, content, undefined, template)}><Download className="mr-1 h-4 w-4" /> PDF</Button>
+          <Button variant="outline" size="sm" onClick={() => downloadResumePdf(name, content, contactLine, template)}><Download className="mr-1 h-4 w-4" /> PDF</Button>
           <Button onClick={() => saveMut.mutate()} disabled={saveMut.isPending}><Save className="mr-1 h-4 w-4" /> Save</Button>
         </div>
       </div>
@@ -125,7 +132,7 @@ function ResumeEditor() {
           </div>
           <div className="max-h-[820px] overflow-auto p-6 md:p-10">
             <div className="origin-top" style={{ transform: "scale(0.85)", transformOrigin: "top center" }}>
-              <ResumePreview template={template} name={name} content={content} />
+              <ResumePreview template={template} name={name} contact={contactLine} content={content} />
             </div>
           </div>
         </Card>
@@ -133,6 +140,19 @@ function ResumeEditor() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-5 lg:col-span-2">
+          <Card className="p-5">
+            <h3 className="font-semibold">Contact</h3>
+            <p className="mt-1 text-xs text-muted-foreground">Recruiters and ATS systems scan these first. Use a professional email and full URLs.</p>
+            <div className="mt-3 grid gap-2 md:grid-cols-2">
+              <Input value={content.contact.email} onChange={(e) => upd("contact", { ...content.contact, email: e.target.value })} placeholder="Email (you@example.com)" maxLength={200} type="email" />
+              <Input value={content.contact.phone} onChange={(e) => upd("contact", { ...content.contact, phone: e.target.value })} placeholder="Phone (+91 9XXXXXXXXX)" maxLength={50} />
+              <Input value={content.contact.location} onChange={(e) => upd("contact", { ...content.contact, location: e.target.value })} placeholder="Location (City, Country)" maxLength={200} />
+              <Input value={content.contact.linkedin} onChange={(e) => upd("contact", { ...content.contact, linkedin: e.target.value })} placeholder="LinkedIn URL" maxLength={300} />
+              <Input value={content.contact.github} onChange={(e) => upd("contact", { ...content.contact, github: e.target.value })} placeholder="GitHub URL" maxLength={300} />
+              <Input value={content.contact.website} onChange={(e) => upd("contact", { ...content.contact, website: e.target.value })} placeholder="Portfolio / Website" maxLength={300} />
+            </div>
+          </Card>
+
           <Card className="p-5">
             <Label>Professional summary</Label>
             <Textarea className="mt-2" rows={3} value={content.summary} onChange={(e) => upd("summary", e.target.value)} maxLength={2000} placeholder="2-3 sentences about who you are and what you're looking for." />
@@ -173,6 +193,7 @@ function ResumeEditor() {
           <StringListSection title="Skills" items={content.skills} onChange={(v) => upd("skills", v)} placeholder="React, Python…" />
           <StringListSection title="Certifications" items={content.certifications} onChange={(v) => upd("certifications", v)} placeholder="AWS Cloud Practitioner…" />
           <StringListSection title="Achievements" items={content.achievements} onChange={(v) => upd("achievements", v)} placeholder="Won Smart India Hackathon 2024…" />
+          <StringListSection title="Languages" items={content.languages} onChange={(v) => upd("languages", v)} placeholder="English (Fluent), Hindi (Native)…" />
         </div>
 
         <div className="space-y-5">

@@ -91,6 +91,7 @@ function ModernDoc({ content, name, contact }: { content: ResumeContentT; name: 
         {content.skills.length > 0 && (<View style={modern.section}><Text style={modern.h2}>Skills</Text><Text style={modern.para}>{content.skills.join(" · ")}</Text></View>)}
         {content.certifications.length > 0 && (<View style={modern.section}><Text style={modern.h2}>Certifications</Text><Bullets items={content.certifications} /></View>)}
         {content.achievements.length > 0 && (<View style={modern.section}><Text style={modern.h2}>Achievements</Text><Bullets items={content.achievements} /></View>)}
+        {(content.languages?.length ?? 0) > 0 && (<View style={modern.section}><Text style={modern.h2}>Languages</Text><Text style={modern.para}>{content.languages!.join(" · ")}</Text></View>)}
       </Page>
     </Document>
   );
@@ -151,6 +152,7 @@ function ClassicDoc({ content, name, contact }: { content: ResumeContentT; name:
         {content.skills.length > 0 && (<View style={classic.section}><Text style={classic.h2}>Skills</Text><Text style={{ textAlign: "center" }}>{content.skills.join(" • ")}</Text></View>)}
         {content.certifications.length > 0 && (<View style={classic.section}><Text style={classic.h2}>Certifications</Text><Bullets items={content.certifications} /></View>)}
         {content.achievements.length > 0 && (<View style={classic.section}><Text style={classic.h2}>Honors & Achievements</Text><Bullets items={content.achievements} /></View>)}
+        {(content.languages?.length ?? 0) > 0 && (<View style={classic.section}><Text style={classic.h2}>Languages</Text><Text style={{ textAlign: "center" }}>{content.languages!.join(" • ")}</Text></View>)}
       </Page>
     </Document>
   );
@@ -220,6 +222,7 @@ function MinimalistDoc({ content, name, contact }: { content: ResumeContentT; na
         {content.skills.length > 0 && <MinRow label="Skills"><Text style={minimal.para}>{content.skills.join("   ·   ")}</Text></MinRow>}
         {content.certifications.length > 0 && <MinRow label="Certifications"><Bullets items={content.certifications} dot="–" /></MinRow>}
         {content.achievements.length > 0 && <MinRow label="Achievements"><Bullets items={content.achievements} dot="–" /></MinRow>}
+        {(content.languages?.length ?? 0) > 0 && <MinRow label="Languages"><Text style={minimal.para}>{content.languages!.join("   ·   ")}</Text></MinRow>}
       </Page>
     </Document>
   );
@@ -260,6 +263,8 @@ function CreativeDoc({ content, name, contact }: { content: ResumeContentT; name
             {content.certifications.map((x, i) => <Text key={i} style={creative.sideItem}>• {x}</Text>)}</>)}
           {content.achievements.length > 0 && (<><Text style={creative.sideH2}>Achievements</Text>
             {content.achievements.map((x, i) => <Text key={i} style={creative.sideItem}>• {x}</Text>)}</>)}
+          {(content.languages?.length ?? 0) > 0 && (<><Text style={creative.sideH2}>Languages</Text>
+            {content.languages!.map((l, i) => <Text key={i} style={creative.sideItem}>{l}</Text>)}</>)}
         </View>
         <View style={creative.main}>
           {content.summary && (<><Text style={creative.h2}>Profile</Text><Text style={{ lineHeight: 1.4 }}>{content.summary}</Text></>)}
