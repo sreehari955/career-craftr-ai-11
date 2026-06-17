@@ -263,6 +263,8 @@ function CreativeDoc({ content, name, contact }: { content: ResumeContentT; name
             {content.certifications.map((x, i) => <Text key={i} style={creative.sideItem}>• {x}</Text>)}</>)}
           {content.achievements.length > 0 && (<><Text style={creative.sideH2}>Achievements</Text>
             {content.achievements.map((x, i) => <Text key={i} style={creative.sideItem}>• {x}</Text>)}</>)}
+          {(content.languages?.length ?? 0) > 0 && (<><Text style={creative.sideH2}>Languages</Text>
+            {content.languages!.map((l, i) => <Text key={i} style={creative.sideItem}>{l}</Text>)}</>)}
         </View>
         <View style={creative.main}>
           {content.summary && (<><Text style={creative.h2}>Profile</Text><Text style={{ lineHeight: 1.4 }}>{content.summary}</Text></>)}
