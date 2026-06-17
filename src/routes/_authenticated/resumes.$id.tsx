@@ -109,7 +109,7 @@ function ResumeEditor() {
             <Eye className="mr-1 h-4 w-4" /> {showPreview ? "Hide preview" : "Show preview"}
           </Button>
           <Button asChild variant="outline" size="sm"><Link to="/resume-history/$id" params={{ id }}><GitBranch className="mr-1 h-4 w-4" /> History</Link></Button>
-          <Button variant="outline" size="sm" onClick={() => downloadResumePdf(name, content, undefined, template)}><Download className="mr-1 h-4 w-4" /> PDF</Button>
+          <Button variant="outline" size="sm" onClick={() => downloadResumePdf(name, content, contactLine, template)}><Download className="mr-1 h-4 w-4" /> PDF</Button>
           <Button onClick={() => saveMut.mutate()} disabled={saveMut.isPending}><Save className="mr-1 h-4 w-4" /> Save</Button>
         </div>
       </div>
