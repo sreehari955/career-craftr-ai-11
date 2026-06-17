@@ -17,12 +17,15 @@ import { ArrowLeft, Plus, Save, Sparkles, Trash2, X, Wand2, Download, GitBranch,
 import { toast } from "sonner";
 import { downloadResumePdf } from "@/lib/resume-pdf";
 import { ResumePreview, TEMPLATES, type TemplateId } from "@/components/resume-preview";
+import { buildContactLine } from "@/lib/api/resumes.functions";
 
 export const Route = createFileRoute("/_authenticated/resumes/$id")({
   component: ResumeEditor,
 });
 
+type ContactT = { email: string; phone: string; location: string; linkedin: string; website: string; github: string };
 type Content = {
+  contact: ContactT;
   summary: string;
   education: { school: string; degree: string; year: string; details: string }[];
   experience: { role: string; company: string; period: string; bullets: string[] }[];
@@ -30,9 +33,11 @@ type Content = {
   skills: string[];
   certifications: string[];
   achievements: string[];
+  languages: string[];
 };
 
-const blank: Content = { summary: "", education: [], experience: [], projects: [], skills: [], certifications: [], achievements: [] };
+const blankContact: ContactT = { email: "", phone: "", location: "", linkedin: "", website: "", github: "" };
+const blank: Content = { contact: blankContact, summary: "", education: [], experience: [], projects: [], skills: [], certifications: [], achievements: [], languages: [] };
 
 function ResumeEditor() {
   const { id } = Route.useParams();
