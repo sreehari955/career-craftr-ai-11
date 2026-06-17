@@ -65,10 +65,12 @@ function ResumeEditor() {
       setIsMaster(resume.is_master);
       setJobId(resume.job_id ?? "none");
       const c = (resume.content ?? {}) as Partial<Content>;
-      setContent({ ...blank, ...c });
+      setContent({ ...blank, ...c, contact: { ...blankContact, ...(c.contact ?? {}) } });
       setFeedback(resume.ats_feedback as Awaited<ReturnType<typeof score>> | null);
     }
   }, [resume]);
+
+  const contactLine = buildContactLine(content.contact);
 
   const saveMut = useMutation({
     mutationFn: async () => save({ data: { id, name, is_master: isMaster, job_id: jobId === "none" ? null : jobId, content } }),
