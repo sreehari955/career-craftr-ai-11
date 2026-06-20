@@ -224,6 +224,68 @@ function ResumeEditor() {
 
         <div className="space-y-5">
           <Card className="p-5">
+            <h3 className="flex items-center gap-2 font-semibold"><Wand2 className="h-4 w-4 text-primary" /> Job description analyzer</h3>
+            <p className="mt-1 text-xs text-muted-foreground">Paste a job description to extract required skills, keywords, and see your keyword match.</p>
+            <Textarea className="mt-3" rows={6} value={jdText} onChange={(e) => setJdText(e.target.value)} maxLength={12000} placeholder="Paste the full job description here…" />
+            <Button onClick={() => jdMut.mutate()} disabled={jdMut.isPending || jdText.trim().length < 20} className="mt-2 w-full" variant="outline">
+              <Sparkles className="mr-1 h-4 w-4" /> {jdMut.isPending ? "Analyzing…" : "Analyze JD"}
+            </Button>
+            {jdAnalysis && (
+              <div className="mt-4 space-y-3">
+                <div>
+                  <div className="flex items-baseline justify-between">
+                    <h4 className="text-sm font-semibold">Keyword match</h4>
+                    <span className="font-display text-xl font-bold">{matchPct}%</span>
+                  </div>
+                  <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
+                    <div className="h-full bg-gradient-hero" style={{ width: `${matchPct}%` }} />
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">{matched.length} of {jdKeywords.length} keywords found in your resume.</p>
+                </div>
+                {matched.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-emerald-600">✓ Matched ({matched.length})</h4>
+                    <div className="mt-1 flex flex-wrap gap-1.5">{matched.map((k) => <Badge key={k} variant="default" className="bg-emerald-600 hover:bg-emerald-700">{k}</Badge>)}</div>
+                  </div>
+                )}
+                {missing.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-rose-600">✗ Missing ({missing.length})</h4>
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {missing.map((k) => (
+                        <button key={k} onClick={() => { if (!content.skills.includes(k)) upd("skills", [...content.skills, k]); }} title="Add to skills">
+                          <Badge variant="outline" className="cursor-pointer border-rose-300 text-rose-700 hover:bg-rose-50">{k} +</Badge>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {jdAnalysis.required_skills.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold">Required skills</h4>
+                    <div className="mt-1 flex flex-wrap gap-1.5">{jdAnalysis.required_skills.map((k) => <Badge key={k} variant="secondary">{k}</Badge>)}</div>
+                  </div>
+                )}
+                {jdAnalysis.preferred_skills.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold">Preferred skills</h4>
+                    <div className="mt-1 flex flex-wrap gap-1.5">{jdAnalysis.preferred_skills.map((k) => <Badge key={k} variant="outline">{k}</Badge>)}</div>
+                  </div>
+                )}
+                {jdAnalysis.experience_requirements.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold">Experience</h4>
+                    <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
+                      {jdAnalysis.experience_requirements.map((s, i) => <li key={i}>• {s}</li>)}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+          </Card>
+
+
+          <Card className="p-5">
             <h3 className="flex items-center gap-2 font-semibold"><Sparkles className="h-4 w-4 text-primary" /> ATS check</h3>
             <p className="mt-1 text-xs text-muted-foreground">Score this resume against a job to see how well it matches.</p>
             <div className="mt-3 space-y-2">
