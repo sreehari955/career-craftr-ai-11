@@ -47,6 +47,7 @@ export function ResumePreview({
   content: ResumeContentT;
   scale?: number;
 }) {
+  const b = baseTemplate(template);
   return (
     <div
       className="mx-auto"
@@ -62,10 +63,10 @@ export function ResumePreview({
         }}
       >
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-slate-300/60 to-transparent" />
-        {template === "modern" && <ModernTemplate name={name} contact={contact} content={content} />}
-        {template === "classic" && <ClassicTemplate name={name} contact={contact} content={content} />}
-        {template === "minimalist" && <MinimalistTemplate name={name} contact={contact} content={content} />}
-        {template === "creative" && <CreativeTemplate name={name} contact={contact} content={content} />}
+        {b === "modern" && <ModernTemplate name={name} contact={contact} content={content} />}
+        {b === "classic" && <ClassicTemplate name={name} contact={contact} content={content} />}
+        {b === "minimalist" && <MinimalistTemplate name={name} contact={contact} content={content} />}
+        {b === "creative" && <CreativeTemplate name={name} contact={contact} content={content} />}
       </div>
     </div>
   );
