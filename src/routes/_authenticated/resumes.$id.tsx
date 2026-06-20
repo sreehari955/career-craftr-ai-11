@@ -190,6 +190,10 @@ function ResumeEditor() {
           />
 
           <BulletsSection title="Experience" items={content.experience} onChange={(v) => upd("experience", v)} blank={{ role: "", company: "", period: "", bullets: [] }}
+            onEnhance={async (it, b) => {
+              const r = await enhance({ data: { bullet: b, context: `${it.role} at ${it.company}`, job_description: jdText } });
+              return r.improved;
+            }}
             headerFields={(it, set) => (
               <div className="grid gap-2 md:grid-cols-3">
                 <Input value={it.role} onChange={(e) => set({ ...it, role: e.target.value })} placeholder="Role" maxLength={200} />
@@ -200,6 +204,10 @@ function ResumeEditor() {
           />
 
           <BulletsSection title="Projects" items={content.projects} onChange={(v) => upd("projects", v)} blank={{ name: "", tech: "", bullets: [] }}
+            onEnhance={async (it, b) => {
+              const r = await enhance({ data: { bullet: b, context: `${it.name} (${it.tech})`, job_description: jdText } });
+              return r.improved;
+            }}
             headerFields={(it, set) => (
               <div className="grid gap-2 md:grid-cols-2">
                 <Input value={it.name} onChange={(e) => set({ ...it, name: e.target.value })} placeholder="Project name" maxLength={200} />
