@@ -47,7 +47,6 @@ function ProfilePage() {
   }, [data]);
 
   const mut = useMutation({
-<<<<<<< HEAD
     mutationFn: async (vals: Partial<Profile>) => {
       // Save avatar to localStorage as a robust local fallback
       if (vals.id) {
@@ -70,17 +69,10 @@ function ProfilePage() {
         throw err;
       }
     },
-    onSuccess: () => { 
-      toast.success("Profile saved"); 
-      qc.invalidateQueries({ queryKey: ["profile"] }); 
-      router.navigate({ to: "/dashboard" }); 
-=======
-    mutationFn: async (vals: Partial<Profile>) => saveProfile({ data: { ...vals, onboarded: true } as never }),
     onSuccess: () => {
       toast.success("Profile saved");
       qc.invalidateQueries({ queryKey: ["profile"] });
       navigate({ to: "/dashboard" });
->>>>>>> 486cd47eac3a36a027a872a9642cdb6fde6bbc9f
     },
     onError: (e: Error) => toast.error(e.message),
   });

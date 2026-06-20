@@ -17,31 +17,80 @@ export const Route = createFileRoute("/_authenticated/resume-history/$id")({
 
 function contentToText(c: ResumeContentT): string {
   const lines: string[] = [];
+  const personal = c.personal || {};
+  if (personal.fullName) lines.push("FULL NAME: " + personal.fullName);
+  if (personal.title) lines.push("TITLE: " + personal.title);
+  if (personal.email || personal.phone || personal.location) {
+    lines.push("CONTACT: " + [personal.phone, personal.email, personal.location].filter(Boolean).join(" | "));
+  }
   if (c.summary) lines.push("SUMMARY", c.summary, "");
+  
   if (c.experience?.length) {
     lines.push("EXPERIENCE");
     for (const e of c.experience) {
-      lines.push(`${e.role} — ${e.company} (${e.period})`);
-      e.bullets.forEach((b) => lines.push("• " + b));
+      const dates = [e.startDate, e.endDate].filter(Boolean).join(" - ");
+      lines.push(`${e.role} — ${e.company} (${dates || e.period || ""})`);
+      const bullets = [...(e.responsibilities || []), ...(e.achievements || []), ...(e.bullets || [])].filter(Boolean);
+      bullets.forEach((b) => lines.push("• " + b));
       lines.push("");
     }
   }
   if (c.projects?.length) {
     lines.push("PROJECTS");
     for (const p of c.projects) {
-      lines.push(`${p.name} (${p.tech})`);
-      p.bullets.forEach((b) => lines.push("• " + b));
+      const dates = [p.startDate, p.endDate].filter(Boolean).join(" - ");
+      lines.push(`${p.name || p.title} (${p.technologies?.join(", ") || p.tech || ""}) [${dates}]`);
+      const bullets = [...(p.features || []).map(f => `Key feature: ${f}`), ...(p.challenges || []).map(ch => `Challenge: ${ch}`), ...(p.impact || []).map(imp => `Impact: ${imp}`), ...(p.bullets || [])].filter(Boolean);
+      bullets.forEach((b) => lines.push("• " + b));
       lines.push("");
     }
   }
   if (c.education?.length) {
     lines.push("EDUCATION");
-    for (const e of c.education) lines.push(`${e.school} — ${e.degree} (${e.year}) ${e.details}`);
+    for (const e of c.education) {
+      const dates = [e.startDate, e.endDate].filter(Boolean).join(" - ");
+      lines.push(`${e.school} — ${e.degree} ${e.branch || ""} (${dates || e.year || ""}) ${e.gpa || e.details || ""}`);
+    }
     lines.push("");
   }
-  if (c.skills?.length) lines.push("SKILLS", c.skills.join(", "), "");
-  if (c.certifications?.length) lines.push("CERTIFICATIONS", ...c.certifications.map((x) => "• " + x), "");
-  if (c.achievements?.length) lines.push("ACHIEVEMENTS", ...c.achievements.map((x) => "• " + x));
+  
+  const sc = c.skillsCategorized || {};
+  const skillsCategories = [
+    { l: "Languages", i: sc.programmingLanguages },
+    { l: "Web", i: sc.webTechnologies },
+    { l: "Frameworks", i: sc.frameworks },
+    { l: "Databases", i: sc.databases },
+    { l: "Cloud", i: sc.cloudTechnologies },
+    { l: "Tools", i: sc.tools }
+  ].filter(x => x.i && x.i.length > 0);
+
+  if (skillsCategories.length > 0) {
+    lines.push("SKILLS");
+    skillsCategories.forEach(s => lines.push(`${s.l}: ${s.i?.join(", ")}`));
+    lines.push("");
+  } else if (c.skills?.length) {
+    lines.push("SKILLS", c.skills.join(", "), "");
+  }
+
+  if (c.certifications?.length) {
+    lines.push("CERTIFICATIONS");
+    c.certifications.forEach((x: any) => {
+      if (typeof x === "string") lines.push("• " + x);
+      else lines.push(`• ${x.name} (${x.issuer || ""})`);
+    });
+    lines.push("");
+  }
+  
+  const ach = c.achievements || {};
+  const allAchievements = [
+    ...(ach.academic || []).map(x => `• [Academic] ${x}`),
+    ...(ach.competitions || []).map(x => `• [Competition] ${x}`),
+    ...(ach.awards || []).map(x => `• [Award] ${x}`),
+    ...(ach.general || [])
+  ];
+  if (allAchievements.length > 0) {
+    lines.push("ACHIEVEMENTS", ...allAchievements);
+  }
   return lines.join("\n");
 }
 

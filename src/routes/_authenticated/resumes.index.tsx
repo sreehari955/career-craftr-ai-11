@@ -49,7 +49,7 @@ function ResumesPage() {
 
   const createBlank = useMutation({
     mutationFn: async (name: string) => saveResume({ data: { name, is_master: !master, content: {
-      summary: "", education: [], experience: [], projects: [], skills: [], certifications: [], achievements: [],
+      summary: "", education: [], experience: [], projects: [], skills: [], certifications: [], achievements: { academic: [], competitions: [], awards: [], scholarships: [], rankings: [], general: [] },
     } } }),
     onSuccess: ({ id }) => { setOpen(false); setNewName(""); qc.invalidateQueries({ queryKey: ["resumes"] }); window.location.href = `/resumes/${id}`; },
     onError: (e: Error) => toast.error(e.message),

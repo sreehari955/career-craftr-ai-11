@@ -5,26 +5,126 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const Bullet = z.string().max(500);
 const ResumeContent = z.object({
   summary: z.string().max(2000).optional().default(""),
+  personal: z.object({
+    fullName: z.string().max(120).optional().default(""),
+    title: z.string().max(120).optional().default(""),
+    email: z.string().max(100).optional().default(""),
+    phone: z.string().max(40).optional().default(""),
+    location: z.string().max(120).optional().default(""),
+    linkedin: z.string().max(200).optional().default(""),
+    github: z.string().max(200).optional().default(""),
+    portfolio: z.string().max(200).optional().default(""),
+  }).optional().default({}),
   education: z.array(z.object({
     school: z.string().max(200),
     degree: z.string().max(200).optional().default(""),
-    year: z.string().max(40).optional().default(""),
+    branch: z.string().max(200).optional().default(""),
+    gpa: z.string().max(40).optional().default(""),
+    startDate: z.string().max(40).optional().default(""),
+    endDate: z.string().max(40).optional().default(""),
+    coursework: z.string().max(1000).optional().default(""),
+    // compatibility fallbacks
+    year: z.string().max(80).optional().default(""),
     details: z.string().max(500).optional().default(""),
-  })).max(10).optional().default([]),
+  })).max(15).optional().default([]),
+  skills: z.array(z.string().max(60)).max(100).optional().default([]), // fallback
+  skillsCategorized: z.object({
+    programmingLanguages: z.array(z.string().max(60)).optional().default([]),
+    webTechnologies: z.array(z.string().max(60)).optional().default([]),
+    frameworks: z.array(z.string().max(60)).optional().default([]),
+    databases: z.array(z.string().max(60)).optional().default([]),
+    cloudTechnologies: z.array(z.string().max(60)).optional().default([]),
+    tools: z.array(z.string().max(60)).optional().default([]),
+    operatingSystems: z.array(z.string().max(60)).optional().default([]),
+    softSkills: z.array(z.string().max(60)).optional().default([]),
+    custom: z.array(z.object({
+      name: z.string().max(100),
+      skills: z.array(z.string().max(60)),
+    })).optional().default([]),
+  }).optional().default({}),
+  projects: z.array(z.object({
+    name: z.string().max(200),
+    title: z.string().max(200).optional().default(""), // alias
+    description: z.string().max(1500).optional().default(""),
+    tech: z.string().max(200).optional().default(""), // compatibility fallback
+    technologies: z.array(z.string().max(60)).optional().default([]),
+    features: z.array(z.string().max(500)).optional().default([]),
+    challenges: z.array(z.string().max(500)).optional().default([]),
+    impact: z.array(z.string().max(500)).optional().default([]),
+    githubLink: z.string().max(200).optional().default(""),
+    demoLink: z.string().max(200).optional().default(""),
+    startDate: z.string().max(40).optional().default(""),
+    endDate: z.string().max(40).optional().default(""),
+    bullets: z.array(Bullet).max(12).optional().default([]), // compatibility fallback
+  })).max(20).optional().default([]),
   experience: z.array(z.object({
     role: z.string().max(200),
     company: z.string().max(200),
+    type: z.string().max(60).optional().default("Full-time"),
+    location: z.string().max(120).optional().default(""),
+    startDate: z.string().max(40).optional().default(""),
+    endDate: z.string().max(40).optional().default(""),
+    responsibilities: z.array(Bullet).max(15).optional().default([]),
+    achievements: z.array(Bullet).max(15).optional().default([]),
+    technologies: z.array(z.string().max(60)).optional().default([]),
+    // compatibility fallbacks
     period: z.string().max(80).optional().default(""),
     bullets: z.array(Bullet).max(12).optional().default([]),
   })).max(20).optional().default([]),
-  projects: z.array(z.object({
+  internships: z.array(z.object({
+    company: z.string().max(200),
+    role: z.string().max(200),
+    duration: z.string().max(80).optional().default(""),
+    responsibilities: z.array(Bullet).max(15).optional().default([]),
+    skillsGained: z.array(z.string().max(60)).optional().default([]),
+    achievements: z.array(Bullet).max(15).optional().default([]),
+  })).max(10).optional().default([]),
+  certifications: z.array(z.object({
     name: z.string().max(200),
-    tech: z.string().max(200).optional().default(""),
-    bullets: z.array(Bullet).max(8).optional().default([]),
+    issuer: z.string().max(200).optional().default(""),
+    issueDate: z.string().max(40).optional().default(""),
+    expiryDate: z.string().max(40).optional().default(""),
+    credentialId: z.string().max(120).optional().default(""),
+    url: z.string().max(200).optional().default(""),
   })).max(20).optional().default([]),
-  skills: z.array(z.string().max(60)).max(80).optional().default([]),
-  certifications: z.array(z.string().max(200)).max(20).optional().default([]),
-  achievements: z.array(z.string().max(300)).max(20).optional().default([]),
+  certificationsFallback: z.array(z.string().max(200)).optional().default([]), // compatibility fallback
+  achievements: z.object({
+    academic: z.array(z.string().max(500)).optional().default([]),
+    competitions: z.array(z.string().max(500)).optional().default([]),
+    awards: z.array(z.string().max(500)).optional().default([]),
+    scholarships: z.array(z.string().max(500)).optional().default([]),
+    rankings: z.array(z.string().max(500)).optional().default([]),
+    general: z.array(z.string().max(300)).optional().default([]), // compatibility fallback
+  }).optional().default({}),
+  leadership: z.array(z.object({
+    role: z.string().max(200),
+    organization: z.string().max(200),
+    duration: z.string().max(80).optional().default(""),
+    contributions: z.array(Bullet).max(15).optional().default([]),
+  })).max(10).optional().default([]),
+  extraCurricular: z.object({
+    clubs: z.array(z.string().max(500)).optional().default([]),
+    volunteering: z.array(z.string().max(500)).optional().default([]),
+    events: z.array(z.string().max(500)).optional().default([]),
+    communityService: z.array(z.string().max(500)).optional().default([]),
+  }).optional().default({}),
+  publications: z.array(z.object({
+    title: z.string().max(300),
+    publication: z.string().max(300).optional().default(""),
+    date: z.string().max(40).optional().default(""),
+    description: z.string().max(1000).optional().default(""),
+    url: z.string().max(200).optional().default(""),
+  })).max(15).optional().default([]),
+  languages: z.array(z.object({
+    name: z.string().max(60),
+    proficiency: z.string().max(60).optional().default(""),
+  })).max(15).optional().default([]),
+  references: z.array(z.object({
+    name: z.string().max(120),
+    designation: z.string().max(120).optional().default(""),
+    organization: z.string().max(120).optional().default(""),
+    contact: z.string().max(200).optional().default(""),
+  })).max(10).optional().default([]),
 });
 
 export type ResumeContentT = z.infer<typeof ResumeContent>;
