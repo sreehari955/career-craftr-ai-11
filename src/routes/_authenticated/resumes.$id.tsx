@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { getResume, upsertResume } from "@/lib/api/resumes.functions";
-import { scoreResumeATS } from "@/lib/api/ai.functions";
+import { scoreResumeATS, analyzeJobDescription, enhanceBullet } from "@/lib/api/ai.functions";
 import { listJobs } from "@/lib/api/jobs.functions";
 import { ArrowLeft, Plus, Save, Sparkles, Trash2, X, Wand2, Download, GitBranch, Eye } from "lucide-react";
 import { toast } from "sonner";
