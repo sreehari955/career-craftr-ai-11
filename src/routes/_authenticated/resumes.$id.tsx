@@ -316,10 +316,12 @@ function ListSection<T>({ title, items, onChange, blank, render }: {
   );
 }
 
-function BulletsSection<T extends { bullets: string[] }>({ title, items, onChange, blank, headerFields }: {
+function BulletsSection<T extends { bullets: string[] }>({ title, items, onChange, blank, headerFields, onEnhance }: {
   title: string; items: T[]; onChange: (v: T[]) => void; blank: T;
   headerFields: (it: T, set: (v: T) => void) => React.ReactNode;
+  onEnhance?: (it: T, bullet: string) => Promise<string>;
 }) {
+  const [busy, setBusy] = useState<string | null>(null);
   return (
     <Card className="p-5">
       <div className="flex items-center justify-between">
@@ -333,12 +335,32 @@ function BulletsSection<T extends { bullets: string[] }>({ title, items, onChang
             <div key={i} className="space-y-2 rounded-lg border p-3">
               {headerFields(it, set)}
               <div className="space-y-1.5">
-                {it.bullets.map((b, bi) => (
-                  <div key={bi} className="flex gap-2">
-                    <Input value={b} onChange={(e) => set({ ...it, bullets: it.bullets.map((x, j) => j === bi ? e.target.value : x) })} placeholder="Impact-focused bullet…" maxLength={500} />
-                    <Button size="icon" variant="ghost" onClick={() => set({ ...it, bullets: it.bullets.filter((_, j) => j !== bi) })}><X className="h-4 w-4" /></Button>
-                  </div>
-                ))}
+                {it.bullets.map((b, bi) => {
+                  const key = `${i}-${bi}`;
+                  return (
+                    <div key={bi} className="flex gap-2">
+                      <Input value={b} onChange={(e) => set({ ...it, bullets: it.bullets.map((x, j) => j === bi ? e.target.value : x) })} placeholder="Impact-focused bullet…" maxLength={500} />
+                      {onEnhance && (
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          title="Improve with AI"
+                          disabled={busy === key || !b.trim()}
+                          onClick={async () => {
+                            setBusy(key);
+                            try {
+                              const improved = await onEnhance(it, b);
+                              set({ ...it, bullets: it.bullets.map((x, j) => j === bi ? improved : x) });
+                              toast.success("Bullet improved");
+                            } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+                            finally { setBusy(null); }
+                          }}
+                        ><Sparkles className={`h-4 w-4 ${busy === key ? "animate-pulse" : ""}`} /></Button>
+                      )}
+                      <Button size="icon" variant="ghost" onClick={() => set({ ...it, bullets: it.bullets.filter((_, j) => j !== bi) })}><X className="h-4 w-4" /></Button>
+                    </div>
+                  );
+                })}
                 <Button size="sm" variant="outline" onClick={() => set({ ...it, bullets: [...it.bullets, ""] })}><Plus className="mr-1 h-4 w-4" /> Add bullet</Button>
               </div>
               <div className="flex justify-end">
