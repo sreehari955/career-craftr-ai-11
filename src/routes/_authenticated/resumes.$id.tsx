@@ -85,11 +85,25 @@ function ResumeEditor() {
   const scoreMut = useMutation({
     mutationFn: async () => {
       await save({ data: { id, name, is_master: isMaster, job_id: jobId === "none" ? null : jobId, content } });
-      return score({ data: { resume_id: id, job_id: jobId === "none" ? undefined : jobId } });
+      return score({ data: { resume_id: id, job_id: jobId === "none" ? undefined : jobId, job_description: jdText.trim() || undefined } });
     },
     onSuccess: (data) => { setFeedback(data); toast.success(`ATS score: ${data.score}/100`); qc.invalidateQueries({ queryKey: ["resumes"] }); },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const jdMut = useMutation({
+    mutationFn: async () => analyzeJD({ data: { job_description: jdText } }),
+    onSuccess: (d) => { setJdAnalysis(d); toast.success("Job description analyzed"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  // Local keyword matching against resume skills + bullets
+  const resumeTextLower = JSON.stringify(content).toLowerCase();
+  const resumeSkillsLower = content.skills.map((s) => s.toLowerCase());
+  const jdKeywords = jdAnalysis ? Array.from(new Set([...jdAnalysis.required_skills, ...jdAnalysis.preferred_skills, ...jdAnalysis.technologies, ...jdAnalysis.keywords])) : [];
+  const matched = jdKeywords.filter((k) => resumeTextLower.includes(k.toLowerCase()) || resumeSkillsLower.includes(k.toLowerCase()));
+  const missing = jdKeywords.filter((k) => !matched.includes(k));
+  const matchPct = jdKeywords.length ? Math.round((matched.length / jdKeywords.length) * 100) : 0;
 
   if (isLoading || !resume) return <p>Loading resume…</p>;
 
