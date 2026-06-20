@@ -289,8 +289,10 @@ function CreativeDoc({ content, name, contact }: { content: ResumeContentT; name
 }
 
 /* ---------- Dispatcher ---------- */
+import { baseTemplate } from "@/components/resume-preview";
+
 export function ResumePdfDoc({ template = "modern", content, name, contact }: { template?: TemplateId; content: ResumeContentT; name: string; contact?: string }) {
-  switch (template) {
+  switch (baseTemplate(template)) {
     case "classic": return <ClassicDoc content={content} name={name} contact={contact} />;
     case "minimalist": return <MinimalistDoc content={content} name={name} contact={contact} />;
     case "creative": return <CreativeDoc content={content} name={name} contact={contact} />;
