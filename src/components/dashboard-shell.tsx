@@ -1,6 +1,7 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { type ReactNode, useEffect, useState } from "react";
-import { Bell, Briefcase, FileText, KanbanSquare, LayoutDashboard, Mail, MessagesSquare, Sparkles, User, LogOut } from "lucide-react";
+import { Bell, Briefcase, FileText, KanbanSquare, LayoutDashboard, Mail, MessagesSquare, User, LogOut, Shield, Building2 } from "lucide-react";
+import { JTLogo } from "@/components/jt-logo";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -8,8 +9,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { unseenCount } from "@/lib/api/alerts.functions";
 import { getProfile } from "@/lib/api/profile.functions";
+import { getMyRoles } from "@/lib/api/jobs.functions";
 
-const nav = [
+const baseNav = [
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { to: "/jobs", label: "Find Jobs", icon: Briefcase },
   { to: "/alerts", label: "Alerts", icon: Bell },
@@ -32,6 +34,14 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const fetchProfile = useServerFn(getProfile);
   const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
 
+  const rolesFn = useServerFn(getMyRoles);
+  const { data: roles = [] } = useQuery({ queryKey: ["my-roles"], queryFn: () => rolesFn(), staleTime: 60_000 });
+  const nav = [
+    ...baseNav,
+    ...(roles.includes("recruiter") || roles.includes("admin") ? [{ to: "/recruiter" as const, label: "Recruiter", icon: Building2 }] : []),
+    ...(roles.includes("admin") ? [{ to: "/admin" as const, label: "Admin", icon: Shield }] : []),
+  ];
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
   }, []);
@@ -46,11 +56,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen bg-muted/30">
       <aside className="hidden w-64 shrink-0 flex-col border-r bg-sidebar md:flex">
-        <Link to="/dashboard" className="flex items-center gap-2 px-5 py-5 font-display text-lg font-bold">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-hero text-primary-foreground shadow-soft">
-            <Sparkles className="h-4 w-4" />
-          </span>
-          JobTrack-AI
+        <Link to="/dashboard" className="flex items-center px-5 py-5">
+          <JTLogo size="md" />
         </Link>
         <nav className="flex-1 space-y-1 px-3">
           {nav.map((item) => {
@@ -93,7 +100,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       <main className="flex-1 overflow-x-hidden">
         <div className="border-b bg-background/80 px-4 py-3 backdrop-blur md:hidden">
           <div className="flex items-center justify-between">
-            <Link to="/dashboard" className="font-display font-bold">JobTrack-AI</Link>
+            <Link to="/dashboard"><JTLogo size="sm" /></Link>
             <div className="flex items-center gap-2">
               <Link to="/profile" className="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-border bg-muted flex items-center justify-center">
                 {profile?.avatar_url ? (

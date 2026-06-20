@@ -18,11 +18,13 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTrackerRouteImport } from './routes/_authenticated/tracker'
+import { Route as AuthenticatedRecruiterRouteImport } from './routes/_authenticated/recruiter'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedJobsRouteImport } from './routes/_authenticated/jobs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCoverLettersRouteImport } from './routes/_authenticated/cover-letters'
 import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedResumesIndexRouteImport } from './routes/_authenticated/resumes.index'
 import { Route as AuthenticatedInterviewIndexRouteImport } from './routes/_authenticated/interview.index'
 import { Route as ApiPublicRunJobAlertsRouteImport } from './routes/api/public/run-job-alerts'
@@ -74,6 +76,11 @@ const AuthenticatedTrackerRoute = AuthenticatedTrackerRouteImport.update({
   path: '/tracker',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRecruiterRoute = AuthenticatedRecruiterRouteImport.update({
+  id: '/recruiter',
+  path: '/recruiter',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -98,6 +105,11 @@ const AuthenticatedCoverLettersRoute =
 const AuthenticatedAlertsRoute = AuthenticatedAlertsRouteImport.update({
   id: '/alerts',
   path: '/alerts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedResumesIndexRoute =
@@ -143,11 +155,13 @@ export interface FileRoutesByFullPath {
   '/features': typeof FeaturesRoute
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/alerts': typeof AuthenticatedAlertsRoute
   '/cover-letters': typeof AuthenticatedCoverLettersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/jobs': typeof AuthenticatedJobsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/recruiter': typeof AuthenticatedRecruiterRoute
   '/tracker': typeof AuthenticatedTrackerRoute
   '/interview/$id': typeof AuthenticatedInterviewIdRoute
   '/resume-history/$id': typeof AuthenticatedResumeHistoryIdRoute
@@ -164,11 +178,13 @@ export interface FileRoutesByTo {
   '/features': typeof FeaturesRoute
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/alerts': typeof AuthenticatedAlertsRoute
   '/cover-letters': typeof AuthenticatedCoverLettersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/jobs': typeof AuthenticatedJobsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/recruiter': typeof AuthenticatedRecruiterRoute
   '/tracker': typeof AuthenticatedTrackerRoute
   '/interview/$id': typeof AuthenticatedInterviewIdRoute
   '/resume-history/$id': typeof AuthenticatedResumeHistoryIdRoute
@@ -187,11 +203,13 @@ export interface FileRoutesById {
   '/features': typeof FeaturesRoute
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
   '/_authenticated/cover-letters': typeof AuthenticatedCoverLettersRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/jobs': typeof AuthenticatedJobsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/recruiter': typeof AuthenticatedRecruiterRoute
   '/_authenticated/tracker': typeof AuthenticatedTrackerRoute
   '/_authenticated/interview/$id': typeof AuthenticatedInterviewIdRoute
   '/_authenticated/resume-history/$id': typeof AuthenticatedResumeHistoryIdRoute
@@ -210,11 +228,13 @@ export interface FileRouteTypes {
     | '/features'
     | '/pricing'
     | '/sitemap.xml'
+    | '/admin'
     | '/alerts'
     | '/cover-letters'
     | '/dashboard'
     | '/jobs'
     | '/profile'
+    | '/recruiter'
     | '/tracker'
     | '/interview/$id'
     | '/resume-history/$id'
@@ -231,11 +251,13 @@ export interface FileRouteTypes {
     | '/features'
     | '/pricing'
     | '/sitemap.xml'
+    | '/admin'
     | '/alerts'
     | '/cover-letters'
     | '/dashboard'
     | '/jobs'
     | '/profile'
+    | '/recruiter'
     | '/tracker'
     | '/interview/$id'
     | '/resume-history/$id'
@@ -253,11 +275,13 @@ export interface FileRouteTypes {
     | '/features'
     | '/pricing'
     | '/sitemap.xml'
+    | '/_authenticated/admin'
     | '/_authenticated/alerts'
     | '/_authenticated/cover-letters'
     | '/_authenticated/dashboard'
     | '/_authenticated/jobs'
     | '/_authenticated/profile'
+    | '/_authenticated/recruiter'
     | '/_authenticated/tracker'
     | '/_authenticated/interview/$id'
     | '/_authenticated/resume-history/$id'
@@ -344,6 +368,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTrackerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/recruiter': {
+      id: '/_authenticated/recruiter'
+      path: '/recruiter'
+      fullPath: '/recruiter'
+      preLoaderRoute: typeof AuthenticatedRecruiterRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
       path: '/profile'
@@ -377,6 +408,13 @@ declare module '@tanstack/react-router' {
       path: '/alerts'
       fullPath: '/alerts'
       preLoaderRoute: typeof AuthenticatedAlertsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/resumes/': {
@@ -425,11 +463,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
   AuthenticatedCoverLettersRoute: typeof AuthenticatedCoverLettersRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedJobsRoute: typeof AuthenticatedJobsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedRecruiterRoute: typeof AuthenticatedRecruiterRoute
   AuthenticatedTrackerRoute: typeof AuthenticatedTrackerRoute
   AuthenticatedInterviewIdRoute: typeof AuthenticatedInterviewIdRoute
   AuthenticatedResumeHistoryIdRoute: typeof AuthenticatedResumeHistoryIdRoute
@@ -439,11 +479,13 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
   AuthenticatedCoverLettersRoute: AuthenticatedCoverLettersRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedJobsRoute: AuthenticatedJobsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedRecruiterRoute: AuthenticatedRecruiterRoute,
   AuthenticatedTrackerRoute: AuthenticatedTrackerRoute,
   AuthenticatedInterviewIdRoute: AuthenticatedInterviewIdRoute,
   AuthenticatedResumeHistoryIdRoute: AuthenticatedResumeHistoryIdRoute,
@@ -469,13 +511,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
