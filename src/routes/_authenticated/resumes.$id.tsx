@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { getResume, upsertResume } from "@/lib/api/resumes.functions";
-import { scoreResumeATS } from "@/lib/api/ai.functions";
+import { scoreResumeATS, analyzeJobDescription, enhanceBullet } from "@/lib/api/ai.functions";
 import { listJobs } from "@/lib/api/jobs.functions";
 import { ArrowLeft, Plus, Save, Sparkles, Trash2, X, Wand2, Download, GitBranch, Eye } from "lucide-react";
 import { toast } from "sonner";
@@ -47,6 +47,8 @@ function ResumeEditor() {
   const save = useServerFn(upsertResume);
   const score = useServerFn(scoreResumeATS);
   const fetchJobs = useServerFn(listJobs);
+  const analyzeJD = useServerFn(analyzeJobDescription);
+  const enhance = useServerFn(enhanceBullet);
 
   const { data: resume, isLoading } = useQuery({ queryKey: ["resume", id], queryFn: () => fetchResume({ data: { id } }) });
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => fetchJobs() });
@@ -58,6 +60,8 @@ function ResumeEditor() {
   const [feedback, setFeedback] = useState<Awaited<ReturnType<typeof score>> | null>(null);
   const [template, setTemplate] = useState<TemplateId>("modern");
   const [showPreview, setShowPreview] = useState(true);
+  const [jdText, setJdText] = useState("");
+  const [jdAnalysis, setJdAnalysis] = useState<Awaited<ReturnType<typeof analyzeJD>> | null>(null);
 
   useEffect(() => {
     if (resume) {
@@ -81,11 +85,25 @@ function ResumeEditor() {
   const scoreMut = useMutation({
     mutationFn: async () => {
       await save({ data: { id, name, is_master: isMaster, job_id: jobId === "none" ? null : jobId, content } });
-      return score({ data: { resume_id: id, job_id: jobId === "none" ? undefined : jobId } });
+      return score({ data: { resume_id: id, job_id: jobId === "none" ? undefined : jobId, job_description: jdText.trim() || undefined } });
     },
     onSuccess: (data) => { setFeedback(data); toast.success(`ATS score: ${data.score}/100`); qc.invalidateQueries({ queryKey: ["resumes"] }); },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const jdMut = useMutation({
+    mutationFn: async () => analyzeJD({ data: { job_description: jdText } }),
+    onSuccess: (d) => { setJdAnalysis(d); toast.success("Job description analyzed"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  // Local keyword matching against resume skills + bullets
+  const resumeTextLower = JSON.stringify(content).toLowerCase();
+  const resumeSkillsLower = content.skills.map((s) => s.toLowerCase());
+  const jdKeywords = jdAnalysis ? Array.from(new Set([...jdAnalysis.required_skills, ...jdAnalysis.preferred_skills, ...jdAnalysis.technologies, ...jdAnalysis.keywords])) : [];
+  const matched = jdKeywords.filter((k) => resumeTextLower.includes(k.toLowerCase()) || resumeSkillsLower.includes(k.toLowerCase()));
+  const missing = jdKeywords.filter((k) => !matched.includes(k));
+  const matchPct = jdKeywords.length ? Math.round((matched.length / jdKeywords.length) * 100) : 0;
 
   if (isLoading || !resume) return <p>Loading resume…</p>;
 
@@ -172,6 +190,10 @@ function ResumeEditor() {
           />
 
           <BulletsSection title="Experience" items={content.experience} onChange={(v) => upd("experience", v)} blank={{ role: "", company: "", period: "", bullets: [] }}
+            onEnhance={async (it, b) => {
+              const r = await enhance({ data: { bullet: b, context: `${it.role} at ${it.company}`, job_description: jdText } });
+              return r?.improved ?? b;
+            }}
             headerFields={(it, set) => (
               <div className="grid gap-2 md:grid-cols-3">
                 <Input value={it.role} onChange={(e) => set({ ...it, role: e.target.value })} placeholder="Role" maxLength={200} />
@@ -182,6 +204,10 @@ function ResumeEditor() {
           />
 
           <BulletsSection title="Projects" items={content.projects} onChange={(v) => upd("projects", v)} blank={{ name: "", tech: "", bullets: [] }}
+            onEnhance={async (it, b) => {
+              const r = await enhance({ data: { bullet: b, context: `${it.name} (${it.tech})`, job_description: jdText } });
+              return r?.improved ?? b;
+            }}
             headerFields={(it, set) => (
               <div className="grid gap-2 md:grid-cols-2">
                 <Input value={it.name} onChange={(e) => set({ ...it, name: e.target.value })} placeholder="Project name" maxLength={200} />
@@ -197,6 +223,68 @@ function ResumeEditor() {
         </div>
 
         <div className="space-y-5">
+          <Card className="p-5">
+            <h3 className="flex items-center gap-2 font-semibold"><Wand2 className="h-4 w-4 text-primary" /> Job description analyzer</h3>
+            <p className="mt-1 text-xs text-muted-foreground">Paste a job description to extract required skills, keywords, and see your keyword match.</p>
+            <Textarea className="mt-3" rows={6} value={jdText} onChange={(e) => setJdText(e.target.value)} maxLength={12000} placeholder="Paste the full job description here…" />
+            <Button onClick={() => jdMut.mutate()} disabled={jdMut.isPending || jdText.trim().length < 20} className="mt-2 w-full" variant="outline">
+              <Sparkles className="mr-1 h-4 w-4" /> {jdMut.isPending ? "Analyzing…" : "Analyze JD"}
+            </Button>
+            {jdAnalysis && (
+              <div className="mt-4 space-y-3">
+                <div>
+                  <div className="flex items-baseline justify-between">
+                    <h4 className="text-sm font-semibold">Keyword match</h4>
+                    <span className="font-display text-xl font-bold">{matchPct}%</span>
+                  </div>
+                  <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
+                    <div className="h-full bg-gradient-hero" style={{ width: `${matchPct}%` }} />
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">{matched.length} of {jdKeywords.length} keywords found in your resume.</p>
+                </div>
+                {matched.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-emerald-600">✓ Matched ({matched.length})</h4>
+                    <div className="mt-1 flex flex-wrap gap-1.5">{matched.map((k) => <Badge key={k} variant="default" className="bg-emerald-600 hover:bg-emerald-700">{k}</Badge>)}</div>
+                  </div>
+                )}
+                {missing.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-rose-600">✗ Missing ({missing.length})</h4>
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {missing.map((k) => (
+                        <button key={k} onClick={() => { if (!content.skills.includes(k)) upd("skills", [...content.skills, k]); }} title="Add to skills">
+                          <Badge variant="outline" className="cursor-pointer border-rose-300 text-rose-700 hover:bg-rose-50">{k} +</Badge>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {jdAnalysis.required_skills.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold">Required skills</h4>
+                    <div className="mt-1 flex flex-wrap gap-1.5">{jdAnalysis.required_skills.map((k) => <Badge key={k} variant="secondary">{k}</Badge>)}</div>
+                  </div>
+                )}
+                {jdAnalysis.preferred_skills.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold">Preferred skills</h4>
+                    <div className="mt-1 flex flex-wrap gap-1.5">{jdAnalysis.preferred_skills.map((k) => <Badge key={k} variant="outline">{k}</Badge>)}</div>
+                  </div>
+                )}
+                {jdAnalysis.experience_requirements.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold">Experience</h4>
+                    <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
+                      {jdAnalysis.experience_requirements.map((s, i) => <li key={i}>• {s}</li>)}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+          </Card>
+
+
           <Card className="p-5">
             <h3 className="flex items-center gap-2 font-semibold"><Sparkles className="h-4 w-4 text-primary" /> ATS check</h3>
             <p className="mt-1 text-xs text-muted-foreground">Score this resume against a job to see how well it matches.</p>
@@ -290,10 +378,12 @@ function ListSection<T>({ title, items, onChange, blank, render }: {
   );
 }
 
-function BulletsSection<T extends { bullets: string[] }>({ title, items, onChange, blank, headerFields }: {
+function BulletsSection<T extends { bullets: string[] }>({ title, items, onChange, blank, headerFields, onEnhance }: {
   title: string; items: T[]; onChange: (v: T[]) => void; blank: T;
   headerFields: (it: T, set: (v: T) => void) => React.ReactNode;
+  onEnhance?: (it: T, bullet: string) => Promise<string>;
 }) {
+  const [busy, setBusy] = useState<string | null>(null);
   return (
     <Card className="p-5">
       <div className="flex items-center justify-between">
@@ -307,12 +397,32 @@ function BulletsSection<T extends { bullets: string[] }>({ title, items, onChang
             <div key={i} className="space-y-2 rounded-lg border p-3">
               {headerFields(it, set)}
               <div className="space-y-1.5">
-                {it.bullets.map((b, bi) => (
-                  <div key={bi} className="flex gap-2">
-                    <Input value={b} onChange={(e) => set({ ...it, bullets: it.bullets.map((x, j) => j === bi ? e.target.value : x) })} placeholder="Impact-focused bullet…" maxLength={500} />
-                    <Button size="icon" variant="ghost" onClick={() => set({ ...it, bullets: it.bullets.filter((_, j) => j !== bi) })}><X className="h-4 w-4" /></Button>
-                  </div>
-                ))}
+                {it.bullets.map((b, bi) => {
+                  const key = `${i}-${bi}`;
+                  return (
+                    <div key={bi} className="flex gap-2">
+                      <Input value={b} onChange={(e) => set({ ...it, bullets: it.bullets.map((x, j) => j === bi ? e.target.value : x) })} placeholder="Impact-focused bullet…" maxLength={500} />
+                      {onEnhance && (
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          title="Improve with AI"
+                          disabled={busy === key || !b.trim()}
+                          onClick={async () => {
+                            setBusy(key);
+                            try {
+                              const improved = await onEnhance(it, b);
+                              set({ ...it, bullets: it.bullets.map((x, j) => j === bi ? improved : x) });
+                              toast.success("Bullet improved");
+                            } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+                            finally { setBusy(null); }
+                          }}
+                        ><Sparkles className={`h-4 w-4 ${busy === key ? "animate-pulse" : ""}`} /></Button>
+                      )}
+                      <Button size="icon" variant="ghost" onClick={() => set({ ...it, bullets: it.bullets.filter((_, j) => j !== bi) })}><X className="h-4 w-4" /></Button>
+                    </div>
+                  );
+                })}
                 <Button size="sm" variant="outline" onClick={() => set({ ...it, bullets: [...it.bullets, ""] })}><Plus className="mr-1 h-4 w-4" /> Add bullet</Button>
               </div>
               <div className="flex justify-end">

@@ -178,3 +178,55 @@ export const draftRecruiterEmail = createServerFn({ method: "POST" })
     } catch (e) { handleAIError(e); }
   });
 
+/* ---------- Job description analyzer ---------- */
+const JDAnalysisSchema = z.object({
+  required_skills: z.array(z.string()),
+  preferred_skills: z.array(z.string()),
+  keywords: z.array(z.string()),
+  technologies: z.array(z.string()),
+  experience_requirements: z.array(z.string()),
+  summary: z.string(),
+});
+
+export const analyzeJobDescription = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({
+    job_description: z.string().min(20).max(12000),
+  }).parse(d))
+  .handler(async ({ data }) => {
+    try {
+      const model = await getModel();
+      const { experimental_output } = await generateText({
+        model,
+        system: "You are an ATS expert. Extract structured signal from job descriptions for candidates to tailor resumes. Be concise and deduplicate. Skills/keywords should be short tokens (1-3 words). Limit each list to the most important 12-15 items.",
+        prompt: `Analyze this job description.\n\n${data.job_description}\n\nReturn required_skills, preferred_skills, keywords (ATS keywords beyond skills), technologies, experience_requirements (short phrases like "2+ years backend"), and a one-sentence summary.`,
+        experimental_output: Output.object({ schema: JDAnalysisSchema }),
+      });
+      return experimental_output;
+    } catch (e) { handleAIError(e); }
+  });
+
+/* ---------- Bullet enhancer ---------- */
+const BulletEnhanceSchema = z.object({ improved: z.string() });
+
+export const enhanceBullet = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({
+    bullet: z.string().min(1).max(500),
+    context: z.string().max(500).optional().default(""),
+    job_description: z.string().max(8000).optional().default(""),
+  }).parse(d))
+  .handler(async ({ data }) => {
+    try {
+      const model = await getModel();
+      const { experimental_output } = await generateText({
+        model,
+        system: "You rewrite resume bullets to be ATS-friendly and impact-focused. Use a strong action verb, include relevant tech/keywords, and quantify impact when reasonable. Keep to ONE concise sentence under 200 chars. Never fabricate metrics — if no number is implied, omit it. Return only the improved bullet.",
+        prompt: `Original bullet: "${data.bullet}"\nContext (role/project): ${data.context || "(none)"}\nTarget job description: ${data.job_description || "(none)"}\n\nRewrite for ATS impact.`,
+        experimental_output: Output.object({ schema: BulletEnhanceSchema }),
+      });
+      return experimental_output;
+    } catch (e) { handleAIError(e); }
+  });
+
+
