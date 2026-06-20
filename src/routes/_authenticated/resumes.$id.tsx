@@ -206,7 +206,7 @@ function ResumeEditor() {
           <BulletsSection title="Projects" items={content.projects} onChange={(v) => upd("projects", v)} blank={{ name: "", tech: "", bullets: [] }}
             onEnhance={async (it, b) => {
               const r = await enhance({ data: { bullet: b, context: `${it.name} (${it.tech})`, job_description: jdText } });
-              return r.improved;
+              return r?.improved ?? b;
             }}
             headerFields={(it, set) => (
               <div className="grid gap-2 md:grid-cols-2">
