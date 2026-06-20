@@ -1,14 +1,38 @@
 import { cn } from "@/lib/utils";
 import type { ResumeContentT } from "@/lib/api/resumes.functions";
 
-export type TemplateId = "modern" | "classic" | "minimalist" | "creative";
+export type TemplateBase = "modern" | "classic" | "minimalist" | "creative";
+export type TemplateId =
+  | TemplateBase
+  | "fresher"
+  | "software-engineer"
+  | "frontend"
+  | "backend"
+  | "fullstack"
+  | "data-analyst"
+  | "cyber-security"
+  | "startup";
 
-export const TEMPLATES: { id: TemplateId; name: string; description: string; available: boolean }[] = [
-  { id: "modern", name: "Modern", description: "Clean single column, blue accents, ATS-friendly", available: true },
-  { id: "classic", name: "Classic", description: "Serif, traditional centered header", available: true },
-  { id: "minimalist", name: "Minimalist", description: "Lots of whitespace, thin dividers", available: true },
-  { id: "creative", name: "Creative", description: "Two-column sidebar with accent block", available: true },
+type TemplateDef = { id: TemplateId; name: string; description: string; base: TemplateBase; available: boolean };
+
+export const TEMPLATES: TemplateDef[] = [
+  { id: "modern", name: "Modern", description: "Clean single column, blue accents, ATS-friendly", base: "modern", available: true },
+  { id: "classic", name: "Classic", description: "Serif, traditional centered header", base: "classic", available: true },
+  { id: "minimalist", name: "Minimalist", description: "Lots of whitespace, thin dividers", base: "minimalist", available: true },
+  { id: "creative", name: "Creative", description: "Two-column sidebar with accent block", base: "creative", available: true },
+  { id: "fresher", name: "Fresher Professional", description: "Clean single-column layout for students and freshers", base: "modern", available: true },
+  { id: "software-engineer", name: "Software Engineer", description: "Engineer-focused layout, projects forward", base: "modern", available: true },
+  { id: "frontend", name: "Frontend Developer", description: "Polished minimal layout for UI/UX-leaning roles", base: "minimalist", available: true },
+  { id: "backend", name: "Backend Developer", description: "Classic, system-oriented presentation", base: "classic", available: true },
+  { id: "fullstack", name: "Full Stack Developer", description: "Balanced two-column with skills sidebar", base: "creative", available: true },
+  { id: "data-analyst", name: "Data Analyst", description: "Minimalist analytical layout, metrics forward", base: "minimalist", available: true },
+  { id: "cyber-security", name: "Cyber Security", description: "Structured classic layout for security roles", base: "classic", available: true },
+  { id: "startup", name: "Startup Resume", description: "Bold creative layout for startup applications", base: "creative", available: true },
 ];
+
+export function baseTemplate(id: TemplateId): TemplateBase {
+  return TEMPLATES.find((t) => t.id === id)?.base ?? "modern";
+}
 
 export function ResumePreview({
   template = "modern",
