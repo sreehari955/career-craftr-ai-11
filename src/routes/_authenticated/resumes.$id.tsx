@@ -47,6 +47,8 @@ function ResumeEditor() {
   const save = useServerFn(upsertResume);
   const score = useServerFn(scoreResumeATS);
   const fetchJobs = useServerFn(listJobs);
+  const analyzeJD = useServerFn(analyzeJobDescription);
+  const enhance = useServerFn(enhanceBullet);
 
   const { data: resume, isLoading } = useQuery({ queryKey: ["resume", id], queryFn: () => fetchResume({ data: { id } }) });
   const { data: jobs = [] } = useQuery({ queryKey: ["jobs"], queryFn: () => fetchJobs() });
@@ -58,6 +60,8 @@ function ResumeEditor() {
   const [feedback, setFeedback] = useState<Awaited<ReturnType<typeof score>> | null>(null);
   const [template, setTemplate] = useState<TemplateId>("modern");
   const [showPreview, setShowPreview] = useState(true);
+  const [jdText, setJdText] = useState("");
+  const [jdAnalysis, setJdAnalysis] = useState<Awaited<ReturnType<typeof analyzeJD>> | null>(null);
 
   useEffect(() => {
     if (resume) {
