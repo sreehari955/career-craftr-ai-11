@@ -143,7 +143,7 @@ export function buildContactLine(c?: { email?: string; phone?: string; location?
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ResumeContentT {
-  contact: any;
+  contact?: any;
   summary: string;
   personal: any;
   education: any[];
