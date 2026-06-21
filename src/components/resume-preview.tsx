@@ -72,7 +72,7 @@ export function ResumePreview({
   );
 }
 
-function Bullets({ items, color = "text-blue-600" }: { items: string[]; color?: string }) {
+function Bullets({ items, color = "text-blue-600" }: { items: any[]; color?: string }) {
   const cleaned = items.filter(Boolean);
   if (!cleaned.length) return null;
   return (
