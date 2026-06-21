@@ -38,7 +38,7 @@ function Bullets({ items }: { items: string[] }) {
   );
 }
 
-export function ResumePdfDoc({ content, name, contact }: { content: ResumeContentT; name: string; contact?: string }) {
+function ModernDoc({ content, name, contact }: { content: ResumeContentT; name: string; contact?: string }) {
   const personal = content.personal || {};
   const fullName = personal.fullName || name;
   const profTitle = personal.title;
