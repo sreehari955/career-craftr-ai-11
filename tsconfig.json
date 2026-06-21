@@ -17,7 +17,6 @@
     "skipLibCheck": true,
     "strict": true,
     "noImplicitAny": false,
-    "strictNullChecks": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
