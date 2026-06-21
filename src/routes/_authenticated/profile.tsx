@@ -71,7 +71,7 @@ function ProfilePage() {
     onSuccess: () => {
       toast.success("Profile saved");
       qc.invalidateQueries({ queryKey: ["profile"] });
-      navigate({ to: "/dashboard" });
+      router.navigate({ to: "/dashboard" });
     },
     onError: (e: Error) => toast.error(e.message),
   });
