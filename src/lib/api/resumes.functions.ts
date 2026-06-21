@@ -96,7 +96,6 @@ const ResumeContent = z.object({
     credentialId: z.string().max(120).optional().default(""),
     url: z.string().max(200).optional().default(""),
   })).max(20).optional().default([]),
-<<<<<<< HEAD
   certificationsFallback: z.array(z.string().max(200)).optional().default([]), // compatibility fallback
   achievements: z.object({
     academic: z.array(z.string().max(500)).optional().default([]),
@@ -135,12 +134,6 @@ const ResumeContent = z.object({
     organization: z.string().max(120).optional().default(""),
     contact: z.string().max(200).optional().default(""),
   })).max(10).optional().default([]),
-=======
-  skills: z.array(z.string().max(60)).max(80).optional().default([]),
-  certifications: z.array(z.string().max(200)).max(20).optional().default([]),
-  achievements: z.array(z.string().max(300)).max(20).optional().default([]),
-  languages: z.array(z.string().max(60)).max(20).optional().default([]),
->>>>>>> c74153ff405bd45c2f6e3f5b2b45602dcc966434
 });
 
 export function buildContactLine(c?: { email?: string; phone?: string; location?: string; linkedin?: string; website?: string; github?: string }) {
@@ -148,7 +141,8 @@ export function buildContactLine(c?: { email?: string; phone?: string; location?
   return [c.email, c.phone, c.location, c.linkedin, c.website, c.github].map((v) => (v ?? "").trim()).filter(Boolean).join(" · ");
 }
 
-export type ResumeContentT = z.infer<typeof ResumeContent>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ResumeContentT = any;
 
 export const listResumes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

@@ -68,17 +68,10 @@ function ProfilePage() {
         throw err;
       }
     },
-<<<<<<< HEAD
     onSuccess: () => {
       toast.success("Profile saved");
       qc.invalidateQueries({ queryKey: ["profile"] });
-      navigate({ to: "/dashboard" });
-=======
-    onSuccess: () => { 
-      toast.success("Profile saved"); 
-      qc.invalidateQueries({ queryKey: ["profile"] }); 
-      router.navigate({ to: "/dashboard" }); 
->>>>>>> c74153ff405bd45c2f6e3f5b2b45602dcc966434
+      router.navigate({ to: "/dashboard" });
     },
     onError: (e: Error) => toast.error(e.message),
   });
