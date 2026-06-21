@@ -3,7 +3,6 @@ import { saveAs } from "file-saver";
 import type { ResumeContentT } from "./api/resumes.functions";
 import type { TemplateId } from "@/components/resume-preview";
 
-<<<<<<< HEAD
 const styles = StyleSheet.create({
   page: { padding: 30, fontSize: 9.5, fontFamily: "Helvetica", color: "#111", lineHeight: 1.35 },
   header: { marginBottom: 12, alignItems: "center" },
@@ -33,40 +32,12 @@ function Bullets({ items }: { items: string[] }) {
         <View key={i} style={styles.bullet} wrap={false}>
           <Text style={styles.bulletDot}>•</Text>
           <Text style={styles.bulletText}>{b}</Text>
-=======
-/* ---------- Shared ---------- */
-const c = {
-  ink: "#111",
-  mute: "#555",
-  faint: "#777",
-  rule: "#999",
-  blue: "#1d4ed8",
-  blueDark: "#1e3a8a",
-  blueLite: "#dbeafe",
-};
-
-const base = StyleSheet.create({
-  bullet: { flexDirection: "row", marginTop: 2, paddingLeft: 8 },
-  bulletDot: { width: 8 },
-  bulletText: { flex: 1, lineHeight: 1.35 },
-  row: { flexDirection: "row", justifyContent: "space-between", marginTop: 4 },
-});
-
-function Bullets({ items, dot = "•" }: { items: string[]; dot?: string }) {
-  return (
-    <View>
-      {items.filter(Boolean).map((b, i) => (
-        <View key={i} style={base.bullet}>
-          <Text style={base.bulletDot}>{dot}</Text>
-          <Text style={base.bulletText}>{b}</Text>
->>>>>>> c74153ff405bd45c2f6e3f5b2b45602dcc966434
         </View>
       ))}
     </View>
   );
 }
 
-<<<<<<< HEAD
 export function ResumePdfDoc({ content, name, contact }: { content: ResumeContentT; name: string; contact?: string }) {
   const personal = content.personal || {};
   const fullName = personal.fullName || name;
@@ -167,36 +138,6 @@ export function ResumePdfDoc({ content, name, contact }: { content: ResumeConten
                     </Text>
                   ) : null}
                   <Bullets items={bulletsToRender} />
-=======
-/* ---------- MODERN ---------- */
-const modern = StyleSheet.create({
-  page: { padding: 36, fontSize: 10.5, fontFamily: "Helvetica", color: c.ink },
-  header: { borderBottom: `2pt solid ${c.blue}`, paddingBottom: 6, marginBottom: 8 },
-  name: { fontSize: 22, fontWeight: 700 },
-  contact: { fontSize: 9.5, color: c.mute, marginTop: 3 },
-  section: { marginTop: 10 },
-  h2: { fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.5, color: c.blueDark, borderBottom: `0.5pt solid ${c.blue}`, paddingBottom: 2, marginBottom: 5 },
-  itemTitle: { fontWeight: 700, fontSize: 11 },
-  itemMeta: { fontSize: 9.5, color: c.mute },
-  para: { lineHeight: 1.4 },
-});
-function ModernDoc({ content, name, contact }: { content: ResumeContentT; name: string; contact?: string }) {
-  return (
-    <Document>
-      <Page size="A4" style={modern.page}>
-        <View style={modern.header}>
-          <Text style={modern.name}>{name}</Text>
-          {contact && <Text style={modern.contact}>{contact}</Text>}
-        </View>
-        {content.summary && (<View style={modern.section}><Text style={modern.h2}>Summary</Text><Text style={modern.para}>{content.summary}</Text></View>)}
-        {content.experience.length > 0 && (
-          <View style={modern.section}><Text style={modern.h2}>Experience</Text>
-            {content.experience.map((e, i) => (
-              <View key={i} wrap={false} style={{ marginTop: i === 0 ? 0 : 6 }}>
-                <View style={base.row}>
-                  <Text style={modern.itemTitle}>{e.role}{e.company ? ` · ${e.company}` : ""}</Text>
-                  <Text style={modern.itemMeta}>{e.period}</Text>
->>>>>>> c74153ff405bd45c2f6e3f5b2b45602dcc966434
                 </View>
               );
             })}
@@ -378,7 +319,6 @@ function ModernDoc({ content, name, contact }: { content: ResumeContentT; name: 
               </View>
             ))}
           </View>
-<<<<<<< HEAD
         ) : null}
 
         {/* EXTRA-CURRICULAR ACTIVITIES */}
@@ -438,33 +378,6 @@ function ModernDoc({ content, name, contact }: { content: ResumeContentT; name: 
           </View>
         ) : null}
 
-=======
-        )}
-        {content.projects.length > 0 && (
-          <View style={modern.section}><Text style={modern.h2}>Projects</Text>
-            {content.projects.map((p, i) => (
-              <View key={i} wrap={false} style={{ marginTop: i === 0 ? 0 : 6 }}>
-                <View style={base.row}><Text style={modern.itemTitle}>{p.name}</Text><Text style={modern.itemMeta}>{p.tech}</Text></View>
-                <Bullets items={p.bullets} />
-              </View>
-            ))}
-          </View>
-        )}
-        {content.education.length > 0 && (
-          <View style={modern.section}><Text style={modern.h2}>Education</Text>
-            {content.education.map((e, i) => (
-              <View key={i} style={{ marginTop: i === 0 ? 0 : 4 }}>
-                <View style={base.row}><Text style={modern.itemTitle}>{e.school}</Text><Text style={modern.itemMeta}>{e.year}</Text></View>
-                <Text style={modern.itemMeta}>{[e.degree, e.details].filter(Boolean).join(" · ")}</Text>
-              </View>
-            ))}
-          </View>
-        )}
-        {content.skills.length > 0 && (<View style={modern.section}><Text style={modern.h2}>Skills</Text><Text style={modern.para}>{content.skills.join(" · ")}</Text></View>)}
-        {content.certifications.length > 0 && (<View style={modern.section}><Text style={modern.h2}>Certifications</Text><Bullets items={content.certifications} /></View>)}
-        {content.achievements.length > 0 && (<View style={modern.section}><Text style={modern.h2}>Achievements</Text><Bullets items={content.achievements} /></View>)}
-        {(content.languages?.length ?? 0) > 0 && (<View style={modern.section}><Text style={modern.h2}>Languages</Text><Text style={modern.para}>{content.languages!.join(" · ")}</Text></View>)}
->>>>>>> c74153ff405bd45c2f6e3f5b2b45602dcc966434
       </Page>
     </Document>
   );

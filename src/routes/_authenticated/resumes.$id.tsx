@@ -16,7 +16,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getResume, upsertResume } from "@/lib/api/resumes.functions";
 import { scoreResumeATS, analyzeJobDescription, enhanceBullet } from "@/lib/api/ai.functions";
 import { listJobs } from "@/lib/api/jobs.functions";
-<<<<<<< HEAD
 import {
   ArrowLeft,
   Plus,
@@ -50,19 +49,11 @@ import {
 import { toast } from "sonner";
 import { downloadResumePdf } from "@/lib/resume-pdf";
 import type { ResumeContentT } from "@/lib/api/resumes.functions";
-=======
-import { ArrowLeft, Plus, Save, Sparkles, Trash2, X, Wand2, Download, GitBranch, Eye } from "lucide-react";
-import { toast } from "sonner";
-import { downloadResumePdf } from "@/lib/resume-pdf";
-import { ResumePreview, TEMPLATES, type TemplateId } from "@/components/resume-preview";
-import { buildContactLine } from "@/lib/api/resumes.functions";
->>>>>>> c74153ff405bd45c2f6e3f5b2b45602dcc966434
 
 export const Route = createFileRoute("/_authenticated/resumes/$id")({
   component: ResumeEditor,
 });
 
-<<<<<<< HEAD
 const blank: ResumeContentT = {
   summary: "",
   personal: {
@@ -288,23 +279,6 @@ const sampleData: ResumeContentT = {
     }
   ]
 };
-=======
-type ContactT = { email: string; phone: string; location: string; linkedin: string; website: string; github: string };
-type Content = {
-  contact: ContactT;
-  summary: string;
-  education: { school: string; degree: string; year: string; details: string }[];
-  experience: { role: string; company: string; period: string; bullets: string[] }[];
-  projects: { name: string; tech: string; bullets: string[] }[];
-  skills: string[];
-  certifications: string[];
-  achievements: string[];
-  languages: string[];
-};
-
-const blankContact: ContactT = { email: "", phone: "", location: "", linkedin: "", website: "", github: "" };
-const blank: Content = { contact: blankContact, summary: "", education: [], experience: [], projects: [], skills: [], certifications: [], achievements: [], languages: [] };
->>>>>>> c74153ff405bd45c2f6e3f5b2b45602dcc966434
 
 function ResumeEditor() {
   const { id } = Route.useParams();
@@ -339,7 +313,6 @@ function ResumeEditor() {
       setName(resume.name);
       setIsMaster(resume.is_master);
       setJobId(resume.job_id ?? "none");
-<<<<<<< HEAD
       const c = (resume.content ?? {}) as Partial<ResumeContentT>;
       // Securely merge nested structures with fallback
       setContent({
@@ -360,10 +333,6 @@ function ResumeEditor() {
         languages: c.languages || [],
         references: c.references || []
       });
-=======
-      const c = (resume.content ?? {}) as Partial<Content>;
-      setContent({ ...blank, ...c, contact: { ...blankContact, ...(c.contact ?? {}) } });
->>>>>>> c74153ff405bd45c2f6e3f5b2b45602dcc966434
       setFeedback(resume.ats_feedback as Awaited<ReturnType<typeof score>> | null);
     }
   }, [resume]);
@@ -386,25 +355,7 @@ function ResumeEditor() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-<<<<<<< HEAD
   if (isLoading || !resume) return <div className="p-8 text-center text-muted-foreground flex flex-col justify-center items-center h-[50vh]"><RefreshCw className="animate-spin h-8 w-8 mb-2" /> Loading resume builder…</div>;
-=======
-  const jdMut = useMutation({
-    mutationFn: async () => analyzeJD({ data: { job_description: jdText } }),
-    onSuccess: (d) => { setJdAnalysis(d); toast.success("Job description analyzed"); },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  // Local keyword matching against resume skills + bullets
-  const resumeTextLower = JSON.stringify(content).toLowerCase();
-  const resumeSkillsLower = content.skills.map((s) => s.toLowerCase());
-  const jdKeywords = jdAnalysis ? Array.from(new Set([...jdAnalysis.required_skills, ...jdAnalysis.preferred_skills, ...jdAnalysis.technologies, ...jdAnalysis.keywords])) : [];
-  const matched = jdKeywords.filter((k) => resumeTextLower.includes(k.toLowerCase()) || resumeSkillsLower.includes(k.toLowerCase()));
-  const missing = jdKeywords.filter((k) => !matched.includes(k));
-  const matchPct = jdKeywords.length ? Math.round((matched.length / jdKeywords.length) * 100) : 0;
-
-  if (isLoading || !resume) return <p>Loading resume…</p>;
->>>>>>> c74153ff405bd45c2f6e3f5b2b45602dcc966434
 
   const updateField = <K extends keyof ResumeContentT>(k: K, v: ResumeContentT[K]) => {
     setContent((c) => ({ ...c, [k]: v }));
@@ -552,7 +503,6 @@ function ResumeEditor() {
             <Switch checked={isMaster} onCheckedChange={setIsMaster} id="master-toggle" />
             <Label htmlFor="master-toggle" className="cursor-pointer font-medium">Master</Label>
           </div>
-<<<<<<< HEAD
           <Button variant="outline" size="sm" onClick={loadSample} className="h-9 text-xs">
             <FilePlus2 className="mr-1.5 h-4 w-4 text-primary" /> Load Sample Resume
           </Button>
@@ -603,61 +553,6 @@ function ResumeEditor() {
               <span className="hidden md:inline">Activities & Publications</span>
             </TabsTrigger>
           </TabsList>
-=======
-          <Button variant="outline" size="sm" onClick={() => setShowPreview((v) => !v)}>
-            <Eye className="mr-1 h-4 w-4" /> {showPreview ? "Hide preview" : "Show preview"}
-          </Button>
-          <Button asChild variant="outline" size="sm"><Link to="/resume-history/$id" params={{ id }}><GitBranch className="mr-1 h-4 w-4" /> History</Link></Button>
-          <Button variant="outline" size="sm" onClick={() => downloadResumePdf(name, content, contactLine, template)}><Download className="mr-1 h-4 w-4" /> PDF</Button>
-          <Button onClick={() => saveMut.mutate()} disabled={saveMut.isPending}><Save className="mr-1 h-4 w-4" /> Save</Button>
-        </div>
-      </div >
-
-    { showPreview && (
-      <Card className="overflow-hidden bg-slate-100 p-0">
-        <div className="flex flex-wrap items-center gap-2 border-b bg-white px-4 py-3">
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Template</span>
-          {TEMPLATES.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTemplate(t.id)}
-              className={cnTpl(template === t.id, t.available)}
-              title={t.description}
-            >
-              {t.name}{!t.available && <span className="ml-1 text-[10px] opacity-70">(soon)</span>}
-            </button>
-          ))}
-          <span className="ml-auto text-xs text-muted-foreground">Hardcopy preview · A4</span>
-        </div>
-        <div className="max-h-[820px] overflow-auto p-6 md:p-10">
-          <div className="origin-top" style={{ transform: "scale(0.85)", transformOrigin: "top center" }}>
-            <ResumePreview template={template} name={name} contact={contactLine} content={content} />
-          </div>
-        </div>
-      </Card>
-    )
-}
-
-<div className="grid gap-6 lg:grid-cols-3">
-  <div className="space-y-5 lg:col-span-2">
-    <Card className="p-5">
-      <h3 className="font-semibold">Contact</h3>
-      <p className="mt-1 text-xs text-muted-foreground">Recruiters and ATS systems scan these first. Use a professional email and full URLs.</p>
-      <div className="mt-3 grid gap-2 md:grid-cols-2">
-        <Input value={content.contact.email} onChange={(e) => upd("contact", { ...content.contact, email: e.target.value })} placeholder="Email (you@example.com)" maxLength={200} type="email" />
-        <Input value={content.contact.phone} onChange={(e) => upd("contact", { ...content.contact, phone: e.target.value })} placeholder="Phone (+91 9XXXXXXXXX)" maxLength={50} />
-        <Input value={content.contact.location} onChange={(e) => upd("contact", { ...content.contact, location: e.target.value })} placeholder="Location (City, Country)" maxLength={200} />
-        <Input value={content.contact.linkedin} onChange={(e) => upd("contact", { ...content.contact, linkedin: e.target.value })} placeholder="LinkedIn URL" maxLength={300} />
-        <Input value={content.contact.github} onChange={(e) => upd("contact", { ...content.contact, github: e.target.value })} placeholder="GitHub URL" maxLength={300} />
-        <Input value={content.contact.website} onChange={(e) => upd("contact", { ...content.contact, website: e.target.value })} placeholder="Portfolio / Website" maxLength={300} />
-      </div>
-    </Card>
-
-    <Card className="p-5">
-      <Label>Professional summary</Label>
-      <Textarea className="mt-2" rows={3} value={content.summary} onChange={(e) => upd("summary", e.target.value)} maxLength={2000} placeholder="2-3 sentences about who you are and what you're looking for." />
-    </Card>
->>>>>>> c74153ff405bd45c2f6e3f5b2b45602dcc966434
 
     {/* Tab content area */}
     <div className="flex-1 bg-background rounded-xl">
@@ -714,7 +609,6 @@ function ResumeEditor() {
         </Card>
       </TabsContent>
 
-<<<<<<< HEAD
 {/* EDUCATION & SKILLS */ }
 <TabsContent value="education" className="space-y-4 m-0 focus-visible:ring-0">
   {/* EDUCATION SECTION */}
@@ -1261,119 +1155,6 @@ function ResumeEditor() {
     )}
   />
 </TabsContent>
-=======
-          <BulletsSection title="Experience" items={content.experience} onChange={(v) => upd("experience", v)} blank={{ role: "", company: "", period: "", bullets: [] }}
-            onEnhance={async (it, b) => {
-              const r = await enhance({ data: { bullet: b, context: `${it.role} at ${it.company}`, job_description: jdText } });
-              return r?.improved ?? b;
-            }}
-            headerFields={(it, set) => (
-              <div className="grid gap-2 md:grid-cols-3">
-                <Input value={it.role} onChange={(e) => set({ ...it, role: e.target.value })} placeholder="Role" maxLength={200} />
-                <Input value={it.company} onChange={(e) => set({ ...it, company: e.target.value })} placeholder="Company" maxLength={200} />
-                <Input value={it.period} onChange={(e) => set({ ...it, period: e.target.value })} placeholder="Period (e.g. Jun 2024 – Aug 2024)" maxLength={80} />
-              </div>
-            )}
-          />
-
-          <BulletsSection title="Projects" items={content.projects} onChange={(v) => upd("projects", v)} blank={{ name: "", tech: "", bullets: [] }}
-            onEnhance={async (it, b) => {
-              const r = await enhance({ data: { bullet: b, context: `${it.name} (${it.tech})`, job_description: jdText } });
-              return r?.improved ?? b;
-            }}
-            headerFields={(it, set) => (
-              <div className="grid gap-2 md:grid-cols-2">
-                <Input value={it.name} onChange={(e) => set({ ...it, name: e.target.value })} placeholder="Project name" maxLength={200} />
-                <Input value={it.tech} onChange={(e) => set({ ...it, tech: e.target.value })} placeholder="Stack (e.g. React, Node, Postgres)" maxLength={200} />
-              </div>
-            )}
-          />
-
-          <StringListSection title="Skills" items={content.skills} onChange={(v) => upd("skills", v)} placeholder="React, Python…" />
-          <StringListSection title="Certifications" items={content.certifications} onChange={(v) => upd("certifications", v)} placeholder="AWS Cloud Practitioner…" />
-          <StringListSection title="Achievements" items={content.achievements} onChange={(v) => upd("achievements", v)} placeholder="Won Smart India Hackathon 2024…" />
-          <StringListSection title="Languages" items={content.languages} onChange={(v) => upd("languages", v)} placeholder="English (Fluent), Hindi (Native)…" />
-        </div>
-
-        <div className="space-y-5">
-          <Card className="p-5">
-            <h3 className="flex items-center gap-2 font-semibold"><Wand2 className="h-4 w-4 text-primary" /> Job description analyzer</h3>
-            <p className="mt-1 text-xs text-muted-foreground">Paste a job description to extract required skills, keywords, and see your keyword match.</p>
-            <Textarea className="mt-3" rows={6} value={jdText} onChange={(e) => setJdText(e.target.value)} maxLength={12000} placeholder="Paste the full job description here…" />
-            <Button onClick={() => jdMut.mutate()} disabled={jdMut.isPending || jdText.trim().length < 20} className="mt-2 w-full" variant="outline">
-              <Sparkles className="mr-1 h-4 w-4" /> {jdMut.isPending ? "Analyzing…" : "Analyze JD"}
-            </Button>
-            {jdAnalysis && (
-              <div className="mt-4 space-y-3">
-                <div>
-                  <div className="flex items-baseline justify-between">
-                    <h4 className="text-sm font-semibold">Keyword match</h4>
-                    <span className="font-display text-xl font-bold">{matchPct}%</span>
-                  </div>
-                  <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full bg-gradient-hero" style={{ width: `${matchPct}%` }} />
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground">{matched.length} of {jdKeywords.length} keywords found in your resume.</p>
-                </div>
-                {matched.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-semibold text-emerald-600">✓ Matched ({matched.length})</h4>
-                    <div className="mt-1 flex flex-wrap gap-1.5">{matched.map((k) => <Badge key={k} variant="default" className="bg-emerald-600 hover:bg-emerald-700">{k}</Badge>)}</div>
-                  </div>
-                )}
-                {missing.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-semibold text-rose-600">✗ Missing ({missing.length})</h4>
-                    <div className="mt-1 flex flex-wrap gap-1.5">
-                      {missing.map((k) => (
-                        <button key={k} onClick={() => { if (!content.skills.includes(k)) upd("skills", [...content.skills, k]); }} title="Add to skills">
-                          <Badge variant="outline" className="cursor-pointer border-rose-300 text-rose-700 hover:bg-rose-50">{k} +</Badge>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {jdAnalysis.required_skills.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-semibold">Required skills</h4>
-                    <div className="mt-1 flex flex-wrap gap-1.5">{jdAnalysis.required_skills.map((k) => <Badge key={k} variant="secondary">{k}</Badge>)}</div>
-                  </div>
-                )}
-                {jdAnalysis.preferred_skills.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-semibold">Preferred skills</h4>
-                    <div className="mt-1 flex flex-wrap gap-1.5">{jdAnalysis.preferred_skills.map((k) => <Badge key={k} variant="outline">{k}</Badge>)}</div>
-                  </div>
-                )}
-                {jdAnalysis.experience_requirements.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-semibold">Experience</h4>
-                    <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
-                      {jdAnalysis.experience_requirements.map((s, i) => <li key={i}>• {s}</li>)}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )}
-          </Card>
-
-
-          <Card className="p-5">
-            <h3 className="flex items-center gap-2 font-semibold"><Sparkles className="h-4 w-4 text-primary" /> ATS check</h3>
-            <p className="mt-1 text-xs text-muted-foreground">Score this resume against a job to see how well it matches.</p>
-            <div className="mt-3 space-y-2">
-              <Label className="text-xs">Target role (optional)</Label>
-              <Select value={jobId} onValueChange={setJobId}>
-                <SelectTrigger><SelectValue placeholder="No specific role" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">General ATS check</SelectItem>
-                  {jobs.map((j) => <SelectItem key={j.id} value={j.id}>{j.title} — {j.company}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Button onClick={() => scoreMut.mutate()} disabled={scoreMut.isPending} className="w-full bg-gradient-hero">
-                <Wand2 className="mr-1 h-4 w-4" /> {scoreMut.isPending ? "Analyzing…" : "Run ATS check"}
-              </Button>
->>>>>>> c74153ff405bd45c2f6e3f5b2b45602dcc966434
             </div >
           </Tabs >
         </div >
@@ -1807,7 +1588,6 @@ function ResumeEditor() {
   );
 }
 
-<<<<<<< HEAD
 // Sub-component: Form list section layout (allows multiple entries with delete/add)
 function ListSection<T>({
   title,
@@ -1820,28 +1600,6 @@ function ListSection<T>({
   items: T[];
   onChange: (v: T[]) => void;
   blank: T;
-=======
-function KeywordList({ label, items, variant }: { label: string; items: string[]; variant: "default" | "outline" }) {
-  return (
-    <div>
-      <h4 className="text-sm font-semibold">{label}</h4>
-      <div className="mt-1 flex flex-wrap gap-1.5">
-        {items.map((k) => <Badge key={k} variant={variant}>{k}</Badge>)}
-      </div>
-    </div>
-  );
-}
-
-function cnTpl(active: boolean, available: boolean) {
-  const base = "rounded-full border px-3 py-1 text-xs font-medium transition-colors";
-  if (active) return base + " border-primary bg-primary text-primary-foreground";
-  if (!available) return base + " border-dashed text-muted-foreground/70";
-  return base + " hover:bg-muted";
-}
-
-function ListSection<T>({ title, items, onChange, blank, render }: {
-  title: string; items: T[]; onChange: (v: T[]) => void; blank: T;
->>>>>>> c74153ff405bd45c2f6e3f5b2b45602dcc966434
   render: (it: T, set: (v: T) => void) => React.ReactNode;
 }) {
   return (
@@ -1852,7 +1610,6 @@ function ListSection<T>({ title, items, onChange, blank, render }: {
           <Plus className="h-4 w-4" /> Add Entry
         </Button>
       </div>
-<<<<<<< HEAD
   {
     items.length === 0 ? (
       <div className="text-xs text-center py-6 text-muted-foreground italic border border-dashed rounded-lg bg-muted/20">No entries added. Click 'Add Entry' above to start.</div>
@@ -1864,68 +1621,6 @@ function ListSection<T>({ title, items, onChange, blank, render }: {
             <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => onChange(items.filter((_, j) => j !== i))}>
               <Trash2 className="h-4 w-4" />
             </Button>
-=======
-      <div className="mt-3 space-y-3">
-              {items.map((it, i) => (
-                <div key={i} className="space-y-2 rounded-lg border p-3">
-                  {render(it, (v) => onChange(items.map((x, j) => j === i ? v : x)))}
-                  <div className="flex justify-end">
-                    <Button size="sm" variant="ghost" onClick={() => onChange(items.filter((_, j) => j !== i))}><Trash2 className="h-4 w-4" /></Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-          );
-}
-
-          function BulletsSection<T extends { bullets: string[] }>({title, items, onChange, blank, headerFields, onEnhance}: {
-            title: string; items: T[]; onChange: (v: T[]) => void; blank: T;
-  headerFields: (it: T, set: (v: T) => void) => React.ReactNode;
-  onEnhance?: (it: T, bullet: string) => Promise<string>;
-}) {
-  const [busy, setBusy] = useState<string | null>(null);
-            return (
-            <Card className="p-5">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold">{title}</h3>
-                <Button size="sm" variant="ghost" onClick={() => onChange([...items, { ...blank }])}><Plus className="mr-1 h-4 w-4" /> Add</Button>
-              </div>
-              <div className="mt-3 space-y-4">
-                {items.map((it, i) => {
-                  const set = (v: T) => onChange(items.map((x, j) => j === i ? v : x));
-                  return (
-                    <div key={i} className="space-y-2 rounded-lg border p-3">
-                      {headerFields(it, set)}
-                      <div className="space-y-1.5">
-                        {it.bullets.map((b, bi) => {
-                          const key = `${i}-${bi}`;
-                          return (
-                            <div key={bi} className="flex gap-2">
-                              <Input value={b} onChange={(e) => set({ ...it, bullets: it.bullets.map((x, j) => j === bi ? e.target.value : x) })} placeholder="Impact-focused bullet…" maxLength={500} />
-                              {onEnhance && (
-                                <Button
-                                  size="icon"
-                                  variant="outline"
-                                  title="Improve with AI"
-                                  disabled={busy === key || !b.trim()}
-                                  onClick={async () => {
-                                    setBusy(key);
-                                    try {
-                                      const improved = await onEnhance(it, b);
-                                      set({ ...it, bullets: it.bullets.map((x, j) => j === bi ? improved : x) });
-                                      toast.success("Bullet improved");
-                                    } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
-                                    finally { setBusy(null); }
-                                  }}
-                                ><Sparkles className={`h-4 w-4 ${busy === key ? "animate-pulse" : ""}`} /></Button>
-                              )}
-                              <Button size="icon" variant="ghost" onClick={() => set({ ...it, bullets: it.bullets.filter((_, j) => j !== bi) })}><X className="h-4 w-4" /></Button>
-                            </div>
-                          );
-                        })}
-                        <Button size="sm" variant="outline" onClick={() => set({ ...it, bullets: [...it.bullets, ""] })}><Plus className="mr-1 h-4 w-4" /> Add bullet</Button>
->>>>>>> c74153ff405bd45c2f6e3f5b2b45602dcc966434
                       </div>
                       <div className="pr-8">
                         {render(it, (v) => onChange(items.map((x, j) => j === i ? v : x)))}
