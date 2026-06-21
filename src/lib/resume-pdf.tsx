@@ -23,14 +23,17 @@ const styles = StyleSheet.create({
   boldText: { fontWeight: 700 },
 });
 
-function Bullets({ items }: { items: string[] }) {
+const c = { ink: "#111", mute: "#666", faint: "#9aa3af", blueDark: "#1d4ed8", blueLite: "#dbeafe" };
+const base = StyleSheet.create({ row: { flexDirection: "row", justifyContent: "space-between" } });
+
+function Bullets({ items, dot = "•" }: { items: string[]; dot?: string }) {
   const filtered = (items || []).filter(Boolean);
   if (filtered.length === 0) return null;
   return (
     <View style={{ marginTop: 2 }}>
       {filtered.map((b, i) => (
         <View key={i} style={styles.bullet} wrap={false}>
-          <Text style={styles.bulletDot}>•</Text>
+          <Text style={styles.bulletDot}>{dot}</Text>
           <Text style={styles.bulletText}>{b}</Text>
         </View>
       ))}
