@@ -1,5 +1,6 @@
 import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer";
-import { saveAs } from "file-saver";
+import fileSaver from "file-saver";
+const { saveAs } = fileSaver;
 import type { ResumeContentT } from "./api/resumes.functions";
 import type { TemplateId } from "@/components/resume-preview";
 
