@@ -142,7 +142,26 @@ export function buildContactLine(c?: { email?: string; phone?: string; location?
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ResumeContentT = any;
+export interface ResumeContentT {
+  contact?: any;
+  summary?: string;
+  personal?: any;
+  education?: any[];
+  skills?: any[];
+  skillsCategorized?: any;
+  projects?: any[];
+  experience?: any[];
+  internships?: any[];
+  certifications?: any[];
+  certificationsFallback?: any[];
+  achievements?: any;
+  leadership?: any[];
+  extraCurricular?: any;
+  publications?: any[];
+  languages?: any[];
+  references?: any[];
+  [key: string]: any;
+}
 
 export const listResumes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
