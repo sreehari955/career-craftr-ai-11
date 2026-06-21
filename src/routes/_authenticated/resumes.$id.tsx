@@ -48,7 +48,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { downloadResumePdf } from "@/lib/resume-pdf";
-import type { ResumeContentT } from "@/lib/api/resumes.functions";
+import { buildContactLine, type ResumeContentT } from "@/lib/api/resumes.functions";
+import { ResumePreview, type TemplateId } from "@/components/resume-preview";
 
 export const Route = createFileRoute("/_authenticated/resumes/$id")({
   component: ResumeEditor,
