@@ -1,5 +1,6 @@
 import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer";
-import { saveAs } from "file-saver";
+import fileSaver from "file-saver";
+const { saveAs } = fileSaver;
 import type { ResumeContentT } from "./api/resumes.functions";
 import type { TemplateId } from "@/components/resume-preview";
 
@@ -26,7 +27,7 @@ const styles = StyleSheet.create({
 const c = { ink: "#111", mute: "#666", faint: "#9aa3af", blueDark: "#1d4ed8", blueLite: "#dbeafe" };
 const base = StyleSheet.create({ row: { flexDirection: "row", justifyContent: "space-between" } });
 
-function Bullets({ items, dot = "•" }: { items: string[]; dot?: string }) {
+function Bullets({ items, dot = "•" }: { items: any[]; dot?: string }) {
   const filtered = (items || []).filter(Boolean);
   if (filtered.length === 0) return null;
   return (
@@ -58,7 +59,7 @@ function ModernDoc({ content, name, contact }: { content: ResumeContentT; name: 
 
   // Render skills by categories
   const sc = content.skillsCategorized || {};
-  const skillsList: { label: string; items: string[] }[] = [
+  const skillsList: { label: string; items: any[] }[] = [
     { label: "Programming Languages", items: sc.programmingLanguages || [] },
     { label: "Web Technologies", items: sc.webTechnologies || [] },
     { label: "Frameworks", items: sc.frameworks || [] },
