@@ -1680,6 +1680,17 @@ function ListSection<T>({
 }
 
             // Sub-component: Dynamic Tag Pill Input (used for technical skills categories)
+            const SKILL_EXAMPLES: Record<string, string> = {
+              "Programming Languages": "Python",
+              "Web Technologies": "HTML5, CSS3, REST APIs",
+              "Frameworks": "React, Next.js, Django",
+              "Databases": "PostgreSQL, MongoDB",
+              "Cloud Technologies": "AWS, GCP, Azure",
+              "Tools": "Git, Docker, Jira",
+              "Operating Systems": "Linux, Windows, macOS",
+              "Soft Skills": "Communication, Leadership",
+              "Skills": "Add a skill",
+            };
             function SkillsCategoryInput({title, items, onChange}: {title: string; items: string[]; onChange: (v: string[]) => void }) {
   const [val, setVal] = useState("");
   const add = () => {
@@ -1688,6 +1699,7 @@ function ListSection<T>({
             if (!items.includes(t)) onChange([...items, t]);
             setVal("");
   };
+            const example = SKILL_EXAMPLES[title] || "Add a skill";
             return (
             <div className="space-y-2 rounded-lg border p-3 bg-card shadow-xs">
               <Label className="text-xs font-semibold text-foreground/80">{title}</Label>
@@ -1695,7 +1707,7 @@ function ListSection<T>({
                 <Input
                   value={val}
                   onChange={(e) => setVal(e.target.value)}
-                  placeholder={`Add skill (e.g. Python)`}
+                  placeholder={`e.g. ${example}`}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
