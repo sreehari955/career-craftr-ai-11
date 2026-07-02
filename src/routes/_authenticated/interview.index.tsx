@@ -89,6 +89,19 @@ function InterviewIndex() {
                 </>
               )}
               <div>
+                <Label className="text-sm">Question category</Label>
+                <Select value={category} onValueChange={(v) => setCategory(v as typeof category)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mixed">Mixed (recommended)</SelectItem>
+                    <SelectItem value="hr">HR / Behavioral</SelectItem>
+                    <SelectItem value="technical">Technical</SelectItem>
+                    <SelectItem value="basic">Basic / Fresher</SelectItem>
+                    <SelectItem value="role">Role-specific</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <Label className="text-sm">Number of questions: {count}</Label>
                 <input type="range" min={3} max={10} value={count} onChange={(e) => setCount(Number(e.target.value))} className="mt-1 w-full" />
               </div>
