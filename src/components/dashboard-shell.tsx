@@ -46,6 +46,12 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
   }, []);
 
+  useEffect(() => {
+    if (profile && profile.onboarded === false && pathname !== "/onboarding") {
+      router.navigate({ to: "/onboarding" });
+    }
+  }, [profile, pathname, router]);
+
   const signOut = async () => {
     await queryClient.cancelQueries();
     queryClient.clear();

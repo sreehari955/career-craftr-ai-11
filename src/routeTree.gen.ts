@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as HelpRouteImport } from './routes/help'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -20,6 +21,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTrackerRouteImport } from './routes/_authenticated/tracker'
 import { Route as AuthenticatedRecruiterRouteImport } from './routes/_authenticated/recruiter'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedJobsRouteImport } from './routes/_authenticated/jobs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCoverLettersRouteImport } from './routes/_authenticated/cover-letters'
@@ -40,6 +42,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeaturesRoute = FeaturesRouteImport.update({
@@ -84,6 +91,11 @@ const AuthenticatedRecruiterRoute = AuthenticatedRecruiterRouteImport.update({
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedJobsRoute = AuthenticatedJobsRouteImport.update({
@@ -153,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
+  '/help': typeof HelpRoute
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -160,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/cover-letters': typeof AuthenticatedCoverLettersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/jobs': typeof AuthenticatedJobsRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/recruiter': typeof AuthenticatedRecruiterRoute
   '/tracker': typeof AuthenticatedTrackerRoute
@@ -176,6 +190,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
+  '/help': typeof HelpRoute
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -183,6 +198,7 @@ export interface FileRoutesByTo {
   '/cover-letters': typeof AuthenticatedCoverLettersRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/jobs': typeof AuthenticatedJobsRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/recruiter': typeof AuthenticatedRecruiterRoute
   '/tracker': typeof AuthenticatedTrackerRoute
@@ -201,6 +217,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
+  '/help': typeof HelpRoute
   '/pricing': typeof PricingRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -208,6 +225,7 @@ export interface FileRoutesById {
   '/_authenticated/cover-letters': typeof AuthenticatedCoverLettersRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/jobs': typeof AuthenticatedJobsRoute
+  '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/recruiter': typeof AuthenticatedRecruiterRoute
   '/_authenticated/tracker': typeof AuthenticatedTrackerRoute
@@ -226,6 +244,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/faq'
     | '/features'
+    | '/help'
     | '/pricing'
     | '/sitemap.xml'
     | '/admin'
@@ -233,6 +252,7 @@ export interface FileRouteTypes {
     | '/cover-letters'
     | '/dashboard'
     | '/jobs'
+    | '/onboarding'
     | '/profile'
     | '/recruiter'
     | '/tracker'
@@ -249,6 +269,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/faq'
     | '/features'
+    | '/help'
     | '/pricing'
     | '/sitemap.xml'
     | '/admin'
@@ -256,6 +277,7 @@ export interface FileRouteTypes {
     | '/cover-letters'
     | '/dashboard'
     | '/jobs'
+    | '/onboarding'
     | '/profile'
     | '/recruiter'
     | '/tracker'
@@ -273,6 +295,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/faq'
     | '/features'
+    | '/help'
     | '/pricing'
     | '/sitemap.xml'
     | '/_authenticated/admin'
@@ -280,6 +303,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cover-letters'
     | '/_authenticated/dashboard'
     | '/_authenticated/jobs'
+    | '/_authenticated/onboarding'
     | '/_authenticated/profile'
     | '/_authenticated/recruiter'
     | '/_authenticated/tracker'
@@ -298,6 +322,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   FaqRoute: typeof FaqRoute
   FeaturesRoute: typeof FeaturesRoute
+  HelpRoute: typeof HelpRoute
   PricingRoute: typeof PricingRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiPublicRunJobAlertsRoute: typeof ApiPublicRunJobAlertsRoute
@@ -317,6 +342,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/features': {
@@ -380,6 +412,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/onboarding': {
+      id: '/_authenticated/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/jobs': {
@@ -468,6 +507,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCoverLettersRoute: typeof AuthenticatedCoverLettersRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedJobsRoute: typeof AuthenticatedJobsRoute
+  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedRecruiterRoute: typeof AuthenticatedRecruiterRoute
   AuthenticatedTrackerRoute: typeof AuthenticatedTrackerRoute
@@ -484,6 +524,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCoverLettersRoute: AuthenticatedCoverLettersRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedJobsRoute: AuthenticatedJobsRoute,
+  AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedRecruiterRoute: AuthenticatedRecruiterRoute,
   AuthenticatedTrackerRoute: AuthenticatedTrackerRoute,
@@ -504,6 +545,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   FaqRoute: FaqRoute,
   FeaturesRoute: FeaturesRoute,
+  HelpRoute: HelpRoute,
   PricingRoute: PricingRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiPublicRunJobAlertsRoute: ApiPublicRunJobAlertsRoute,

@@ -35,11 +35,12 @@ function InterviewIndex() {
   const [company, setCompany] = useState("");
   const [jd, setJd] = useState("");
   const [count, setCount] = useState(6);
+  const [category, setCategory] = useState<"mixed" | "hr" | "technical" | "basic" | "role">("mixed");
 
   const createMut = useMutation({
     mutationFn: async () => create({ data: mode === "job"
-      ? { job_id: jobId, count }
-      : { role, company, job_description: jd, count } }),
+      ? { job_id: jobId, count, category }
+      : { role, company, job_description: jd, count, category } }),
     onSuccess: ({ id }) => {
       toast.success("Questions ready");
       setOpen(false);
@@ -87,6 +88,19 @@ function InterviewIndex() {
                   <Textarea placeholder="Paste the job description (optional)" rows={5} value={jd} onChange={(e) => setJd(e.target.value)} maxLength={8000} />
                 </>
               )}
+              <div>
+                <Label className="text-sm">Question category</Label>
+                <Select value={category} onValueChange={(v) => setCategory(v as typeof category)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mixed">Mixed (recommended)</SelectItem>
+                    <SelectItem value="hr">HR / Behavioral</SelectItem>
+                    <SelectItem value="technical">Technical</SelectItem>
+                    <SelectItem value="basic">Basic / Fresher</SelectItem>
+                    <SelectItem value="role">Role-specific</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div>
                 <Label className="text-sm">Number of questions: {count}</Label>
                 <input type="range" min={3} max={10} value={count} onChange={(e) => setCount(Number(e.target.value))} className="mt-1 w-full" />
