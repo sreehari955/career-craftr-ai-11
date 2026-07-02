@@ -35,11 +35,12 @@ function InterviewIndex() {
   const [company, setCompany] = useState("");
   const [jd, setJd] = useState("");
   const [count, setCount] = useState(6);
+  const [category, setCategory] = useState<"mixed" | "hr" | "technical" | "basic" | "role">("mixed");
 
   const createMut = useMutation({
     mutationFn: async () => create({ data: mode === "job"
-      ? { job_id: jobId, count }
-      : { role, company, job_description: jd, count } }),
+      ? { job_id: jobId, count, category }
+      : { role, company, job_description: jd, count, category } }),
     onSuccess: ({ id }) => {
       toast.success("Questions ready");
       setOpen(false);
