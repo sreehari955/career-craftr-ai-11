@@ -12,7 +12,12 @@ async function assertAdmin(userId: string, passcode: string) {
   if (a.length !== b.length || !timingSafeEqual(a, b)) throw new Error("Invalid passcode");
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin.rpc("has_role", { _user_id: userId, _role: "admin" });
+  const { data, error } = await supabaseAdmin
+    .from("user_roles")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw new Error("You do not have admin access");
 }
