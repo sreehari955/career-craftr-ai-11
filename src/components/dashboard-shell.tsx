@@ -41,9 +41,11 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
   const rolesFn = useServerFn(getMyRoles);
   const { data: roles = [] } = useQuery({ queryKey: ["my-roles"], queryFn: () => rolesFn(), staleTime: 60_000 });
+  const isCompany = profile?.account_type === "company";
+  const baseNav = isCompany ? companyNav : seekerNav;
   const nav = [
     ...baseNav,
-    ...(roles.includes("recruiter") || roles.includes("admin") ? [{ to: "/recruiter" as const, label: "Recruiter", icon: Building2 }] : []),
+    ...(!isCompany && (roles.includes("recruiter") || roles.includes("admin")) ? [{ to: "/recruiter" as const, label: "Recruiter", icon: Building2 }] : []),
     ...(roles.includes("admin") ? [{ to: "/admin" as const, label: "Admin", icon: Shield }] : []),
   ];
 
