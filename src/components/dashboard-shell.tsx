@@ -47,8 +47,14 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (profile && profile.onboarded === false && pathname !== "/onboarding") {
+    if (!profile) return;
+    if (profile.onboarded === false && pathname !== "/onboarding") {
       router.navigate({ to: "/onboarding" });
+      return;
+    }
+    // Route company accounts to their dashboard on first landing on seeker home
+    if (profile.account_type === "company" && pathname === "/dashboard") {
+      router.navigate({ to: "/recruiter", replace: true });
     }
   }, [profile, pathname, router]);
 
