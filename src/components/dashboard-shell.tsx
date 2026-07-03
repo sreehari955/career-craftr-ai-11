@@ -11,7 +11,7 @@ import { unseenCount } from "@/lib/api/alerts.functions";
 import { getProfile } from "@/lib/api/profile.functions";
 import { getMyRoles } from "@/lib/api/jobs.functions";
 
-const baseNav = [
+const seekerNav = [
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { to: "/jobs", label: "Find Jobs", icon: Briefcase },
   { to: "/alerts", label: "Alerts", icon: Bell },
@@ -19,6 +19,11 @@ const baseNav = [
   { to: "/tracker", label: "Tracker", icon: KanbanSquare },
   { to: "/interview", label: "Interview", icon: MessagesSquare },
   { to: "/cover-letters", label: "Cover Letters", icon: Mail },
+  { to: "/profile", label: "Profile", icon: User },
+] as const;
+
+const companyNav = [
+  { to: "/recruiter", label: "Company", icon: Building2 },
   { to: "/profile", label: "Profile", icon: User },
 ] as const;
 
