@@ -7,10 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Sparkles } from "lucide-react";
+import { GraduationCap, Building2, ArrowLeft } from "lucide-react";
+import { JTLogo } from "@/components/jt-logo";
 import { toast } from "sonner";
+import { z } from "zod";
+import { useServerFn } from "@tanstack/react-start";
+import { updateProfile } from "@/lib/api/profile.functions";
+
+const searchSchema = z.object({
+  as: z.enum(["seeker", "company"]).optional(),
+});
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (s) => searchSchema.parse(s),
   head: () => ({
     meta: [
       { title: "Sign in — JobTrack-AI" },
@@ -20,12 +29,17 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+type Role = "seeker" | "company";
+
 function AuthPage() {
   const navigate = useNavigate();
+  const search = Route.useSearch();
+  const [role, setRole] = useState<Role | null>(search.as ?? null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const updateProfileFn = useServerFn(updateProfile);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -33,50 +47,122 @@ function AuthPage() {
     });
   }, [navigate]);
 
+  const persistRole = async (chosen: Role) => {
+    try {
+      await updateProfileFn({
+        data: { account_type: chosen === "company" ? "company" : "job_seeker" },
+      });
+    } catch {
+      // profile may not be created yet if email confirmation is pending; ignore
+    }
+  };
+
+  const afterAuth = async (chosen: Role) => {
+    await persistRole(chosen);
+    navigate({ to: chosen === "company" ? "/recruiter" : "/dashboard", replace: true });
+  };
+
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!role) return;
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) { toast.error(error.message); return; }
     toast.success("Welcome back!");
-    navigate({ to: "/dashboard", replace: true });
+    await afterAuth(role);
   };
 
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!role) return;
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email, password,
       options: {
         emailRedirectTo: typeof window !== "undefined" ? window.location.origin + "/dashboard" : undefined,
-        data: { full_name: name },
+        data: { full_name: name, account_type: role === "company" ? "company" : "job_seeker" },
       },
     });
     setLoading(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Account created! Check your email to confirm.");
-    navigate({ to: "/dashboard", replace: true });
+    toast.success("Account created!");
+    if (typeof window !== "undefined") {
+      try { sessionStorage.setItem("pending_account_type", role); } catch { /* noop */ }
+    }
+    await afterAuth(role);
   };
 
   const google = async () => {
+    if (!role) return;
+    if (typeof window !== "undefined") {
+      try { sessionStorage.setItem("pending_account_type", role); } catch { /* noop */ }
+    }
     setLoading(true);
     const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/dashboard" });
     if (result.error) { toast.error(result.error.message || "Google sign-in failed"); setLoading(false); return; }
     if (result.redirected) return;
-    navigate({ to: "/dashboard", replace: true });
+    await afterAuth(role);
   };
+
+  if (!role) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-soft px-4 py-10">
+        <div className="w-full max-w-2xl">
+          <Link to="/" className="mb-7 flex items-center justify-center">
+            <JTLogo size="lg" />
+          </Link>
+          <h1 className="mb-2 text-center font-display text-2xl font-bold">Who are you signing in as?</h1>
+          <p className="mb-8 text-center text-sm text-muted-foreground">Choose the account type to continue.</p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <button
+              onClick={() => setRole("seeker")}
+              className="group rounded-2xl border bg-card p-6 text-left shadow-soft transition hover:border-primary hover:shadow-glow"
+            >
+              <div className="mb-4 grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary">
+                <GraduationCap className="h-6 w-6" />
+              </div>
+              <h2 className="mb-1 font-semibold">Job / Internship Seeker</h2>
+              <p className="text-sm text-muted-foreground">Find roles, build ATS resumes and practice interviews.</p>
+            </button>
+            <button
+              onClick={() => setRole("company")}
+              className="group rounded-2xl border bg-card p-6 text-left shadow-soft transition hover:border-primary hover:shadow-glow"
+            >
+              <div className="mb-4 grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary">
+                <Building2 className="h-6 w-6" />
+              </div>
+              <h2 className="mb-1 font-semibold">Company / Recruiter</h2>
+              <p className="text-sm text-muted-foreground">Post vacancies and manage applicants.</p>
+            </button>
+          </div>
+          <p className="mt-6 text-center text-xs text-muted-foreground">
+            <Link to="/" className="underline hover:text-foreground">Back to home</Link>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const roleLabel = role === "company" ? "Company / Recruiter" : "Job Seeker";
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-soft px-4 py-10">
       <div className="w-full max-w-md">
-        <Link to="/" className="mb-7 flex items-center justify-center gap-2 font-display text-xl font-bold">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-hero text-primary-foreground shadow-soft">
-            <Sparkles className="h-4 w-4" />
-          </span>
-          JobTrack-AI
+        <Link to="/" className="mb-7 flex items-center justify-center">
+          <JTLogo size="lg" />
         </Link>
         <Card className="p-7 shadow-glow">
+          <button
+            onClick={() => setRole(null)}
+            className="mb-4 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-3 w-3" /> Change account type
+          </button>
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            {role === "company" ? <Building2 className="h-3 w-3" /> : <GraduationCap className="h-3 w-3" />}
+            {roleLabel}
+          </div>
           <Tabs defaultValue="signin">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign in</TabsTrigger>
@@ -93,14 +179,14 @@ function AuthPage() {
                   <Label htmlFor="password">Password</Label>
                   <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} maxLength={128} />
                 </div>
-                <Button type="submit" disabled={loading} className="w-full bg-gradient-hero">{loading ? "Signing in…" : "Sign in"}</Button>
+                <Button type="submit" disabled={loading} className="w-full bg-gradient-hero">{loading ? "Signing in…" : `Sign in as ${roleLabel}`}</Button>
               </form>
             </TabsContent>
 
             <TabsContent value="signup" className="mt-6">
               <form onSubmit={signUp} className="space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="name">Your name</Label>
+                  <Label htmlFor="name">{role === "company" ? "Contact name" : "Your name"}</Label>
                   <Input id="name" required value={name} onChange={(e) => setName(e.target.value)} maxLength={120} />
                 </div>
                 <div className="space-y-1.5">
@@ -112,7 +198,7 @@ function AuthPage() {
                   <Input id="password2" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} maxLength={128} />
                   <p className="text-xs text-muted-foreground">At least 6 characters.</p>
                 </div>
-                <Button type="submit" disabled={loading} className="w-full bg-gradient-hero">{loading ? "Creating…" : "Create free account"}</Button>
+                <Button type="submit" disabled={loading} className="w-full bg-gradient-hero">{loading ? "Creating…" : `Create ${roleLabel} account`}</Button>
               </form>
             </TabsContent>
           </Tabs>

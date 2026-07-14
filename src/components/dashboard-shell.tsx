@@ -1,6 +1,6 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { type ReactNode, useEffect, useState } from "react";
-import { Bell, Briefcase, FileText, KanbanSquare, LayoutDashboard, Mail, MessagesSquare, User, LogOut, Shield, Building2 } from "lucide-react";
+import { Bell, Briefcase, FileText, KanbanSquare, LayoutDashboard, Mail, MessagesSquare, User, LogOut, Building2 } from "lucide-react";
 import { JTLogo } from "@/components/jt-logo";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -46,8 +46,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const nav = [
     ...baseNav,
     ...(!isCompany && (roles.includes("recruiter") || roles.includes("admin")) ? [{ to: "/recruiter" as const, label: "Recruiter", icon: Building2 }] : []),
-    ...(roles.includes("admin") ? [{ to: "/admin" as const, label: "Admin", icon: Shield }] : []),
   ];
+  // Admin dashboard is intentionally hidden from the sidebar. Access via direct URL /admin + passcode.
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
