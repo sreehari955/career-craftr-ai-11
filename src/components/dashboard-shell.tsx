@@ -43,10 +43,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const { data: roles = [] } = useQuery({ queryKey: ["my-roles"], queryFn: () => rolesFn(), staleTime: 60_000 });
   const isCompany = profile?.account_type === "company";
   const baseNav = isCompany ? companyNav : seekerNav;
-  const nav = [
-    ...baseNav,
-    ...(!isCompany && (roles.includes("recruiter") || roles.includes("admin")) ? [{ to: "/recruiter" as const, label: "Recruiter", icon: Building2 }] : []),
-  ];
+  const nav = [...baseNav];
+  // Recruiter dashboard is only shown to company accounts. Seekers never see it.
   // Admin dashboard is intentionally hidden from the sidebar. Access via direct URL /admin + passcode.
 
   useEffect(() => {
