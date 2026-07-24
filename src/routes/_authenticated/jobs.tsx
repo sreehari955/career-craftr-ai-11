@@ -174,7 +174,7 @@ function JobsPage() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(`Subject: ${emailDraft.subject}\n\n${emailDraft.body}`); toast.success("Copied"); }}><Copy className="mr-1 h-4 w-4" /> Copy</Button>
-                  <Button size="sm" asChild><a href={`mailto:?subject=${encodeURIComponent(emailDraft.subject)}&body=${encodeURIComponent(emailDraft.body)}`}><Mail className="mr-1 h-4 w-4" /> Open in mail app</a></Button>
+                  <Button size="sm" asChild><a href={`https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(emailDraft.subject)}&body=${encodeURIComponent(emailDraft.body)}`} target="_blank" rel="noreferrer"><Mail className="mr-1 h-4 w-4" /> Open in Gmail</a></Button>
                 </div>
               </div>
             )}
