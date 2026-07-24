@@ -124,17 +124,21 @@ function JobsPage() {
                 </div>
               )}
               <div className="mt-4 flex flex-wrap gap-2">
-                <Button size="sm" onClick={() => saveMut.mutate(j.id)} disabled={saveMut.isPending}>
+                {j.apply_url ? (
+                  <Button size="sm" className="bg-gradient-hero" asChild>
+                    <a href={j.apply_url} target="_blank" rel="noreferrer"><ExternalLink className="mr-1 h-4 w-4" /> Apply now</a>
+                  </Button>
+                ) : (
+                  <Button size="sm" className="bg-gradient-hero" onClick={() => openEmail({ id: j.id, title: j.title, company: j.company })}>
+                    <ExternalLink className="mr-1 h-4 w-4" /> Apply now
+                  </Button>
+                )}
+                <Button size="sm" variant="outline" onClick={() => saveMut.mutate(j.id)} disabled={saveMut.isPending}>
                   <BookmarkPlus className="mr-1 h-4 w-4" /> Save
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => openEmail({ id: j.id, title: j.title, company: j.company })}>
                   <Mail className="mr-1 h-4 w-4" /> Email recruiter
                 </Button>
-                {j.apply_url && (
-                  <Button size="sm" variant="outline" asChild>
-                    <a href={j.apply_url} target="_blank" rel="noreferrer"><ExternalLink className="mr-1 h-4 w-4" /> Apply</a>
-                  </Button>
-                )}
               </div>
             </Card>
           ))}
@@ -170,7 +174,7 @@ function JobsPage() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(`Subject: ${emailDraft.subject}\n\n${emailDraft.body}`); toast.success("Copied"); }}><Copy className="mr-1 h-4 w-4" /> Copy</Button>
-                  <Button size="sm" asChild><a href={`mailto:?subject=${encodeURIComponent(emailDraft.subject)}&body=${encodeURIComponent(emailDraft.body)}`}><Mail className="mr-1 h-4 w-4" /> Open in mail app</a></Button>
+                  <Button size="sm" asChild><a href={`https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(emailDraft.subject)}&body=${encodeURIComponent(emailDraft.body)}`} target="_blank" rel="noreferrer"><Mail className="mr-1 h-4 w-4" /> Open in Gmail</a></Button>
                 </div>
               </div>
             )}
