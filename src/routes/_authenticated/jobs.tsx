@@ -124,17 +124,21 @@ function JobsPage() {
                 </div>
               )}
               <div className="mt-4 flex flex-wrap gap-2">
-                <Button size="sm" onClick={() => saveMut.mutate(j.id)} disabled={saveMut.isPending}>
+                {j.apply_url ? (
+                  <Button size="sm" className="bg-gradient-hero" asChild>
+                    <a href={j.apply_url} target="_blank" rel="noreferrer"><ExternalLink className="mr-1 h-4 w-4" /> Apply now</a>
+                  </Button>
+                ) : (
+                  <Button size="sm" className="bg-gradient-hero" onClick={() => openEmail({ id: j.id, title: j.title, company: j.company })}>
+                    <ExternalLink className="mr-1 h-4 w-4" /> Apply now
+                  </Button>
+                )}
+                <Button size="sm" variant="outline" onClick={() => saveMut.mutate(j.id)} disabled={saveMut.isPending}>
                   <BookmarkPlus className="mr-1 h-4 w-4" /> Save
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => openEmail({ id: j.id, title: j.title, company: j.company })}>
                   <Mail className="mr-1 h-4 w-4" /> Email recruiter
                 </Button>
-                {j.apply_url && (
-                  <Button size="sm" variant="outline" asChild>
-                    <a href={j.apply_url} target="_blank" rel="noreferrer"><ExternalLink className="mr-1 h-4 w-4" /> Apply</a>
-                  </Button>
-                )}
               </div>
             </Card>
           ))}
