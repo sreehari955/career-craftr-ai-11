@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { JTLogo } from "@/components/jt-logo";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -70,11 +71,8 @@ function AuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-soft px-4 py-10">
       <div className="w-full max-w-md">
-        <Link to="/" className="mb-7 flex items-center justify-center gap-2 font-display text-xl font-bold">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-hero text-primary-foreground shadow-soft">
-            <Sparkles className="h-4 w-4" />
-          </span>
-          JobTrack-AI
+        <Link to="/" className="mb-7 flex justify-center">
+          <JTLogo size="md" />
         </Link>
         <Card className="p-7 shadow-glow">
           <Tabs defaultValue="signin">

@@ -1,4 +1,3 @@
-import jtLogo from "@/assets/jt-logo.png.asset.json";
 import { cn } from "@/lib/utils";
 
 type Size = "sm" | "md" | "lg" | "xl";
@@ -25,7 +24,7 @@ export function JTLogo({
   return (
     <span className={cn("flex items-center gap-3", className)}>
       <img
-        src={jtLogo.url}
+        src="/logo.png"
         alt="JT — JobTrack-AI logo"
         className={cn("shrink-0 select-none object-contain", s.img)}
         loading="eager"
