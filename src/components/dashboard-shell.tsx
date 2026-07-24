@@ -1,6 +1,6 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { type ReactNode, useEffect, useState } from "react";
-import { Bell, Briefcase, FileText, KanbanSquare, LayoutDashboard, Mail, MessagesSquare, User, LogOut, Shield, Building2 } from "lucide-react";
+import { Bell, Briefcase, FileText, KanbanSquare, LayoutDashboard, Mail, MessagesSquare, User, LogOut, Building2 } from "lucide-react";
 import { JTLogo } from "@/components/jt-logo";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { unseenCount } from "@/lib/api/alerts.functions";
 import { getProfile } from "@/lib/api/profile.functions";
 import { getMyRoles } from "@/lib/api/jobs.functions";
 
-const baseNav = [
+const seekerNav = [
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { to: "/jobs", label: "Find Jobs", icon: Briefcase },
   { to: "/alerts", label: "Alerts", icon: Bell },
@@ -19,6 +19,11 @@ const baseNav = [
   { to: "/tracker", label: "Tracker", icon: KanbanSquare },
   { to: "/interview", label: "Interview", icon: MessagesSquare },
   { to: "/cover-letters", label: "Cover Letters", icon: Mail },
+  { to: "/profile", label: "Profile", icon: User },
+] as const;
+
+const companyNav = [
+  { to: "/recruiter", label: "Company", icon: Building2 },
   { to: "/profile", label: "Profile", icon: User },
 ] as const;
 
@@ -36,15 +41,27 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
   const rolesFn = useServerFn(getMyRoles);
   const { data: roles = [] } = useQuery({ queryKey: ["my-roles"], queryFn: () => rolesFn(), staleTime: 60_000 });
-  const nav = [
-    ...baseNav,
-    ...(roles.includes("recruiter") || roles.includes("admin") ? [{ to: "/recruiter" as const, label: "Recruiter", icon: Building2 }] : []),
-    ...(roles.includes("admin") ? [{ to: "/admin" as const, label: "Admin", icon: Shield }] : []),
-  ];
+  const isCompany = profile?.account_type === "company";
+  const baseNav = isCompany ? companyNav : seekerNav;
+  const nav = [...baseNav];
+  // Recruiter dashboard is only shown to company accounts. Seekers never see it.
+  // Admin dashboard is intentionally hidden from the sidebar. Access via direct URL /admin + passcode.
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
   }, []);
+
+  useEffect(() => {
+    if (!profile) return;
+    if (profile.onboarded === false && pathname !== "/onboarding") {
+      router.navigate({ to: "/onboarding" });
+      return;
+    }
+    // Route company accounts to their dashboard on first landing on seeker home
+    if (profile.account_type === "company" && pathname === "/dashboard") {
+      router.navigate({ to: "/recruiter", replace: true });
+    }
+  }, [profile, pathname, router]);
 
   const signOut = async () => {
     await queryClient.cancelQueries();

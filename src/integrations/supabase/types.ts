@@ -157,6 +157,45 @@ export type Database = {
           },
         ]
       }
+      feedback: {
+        Row: {
+          category: string
+          created_at: string
+          email: string | null
+          id: string
+          message: string
+          page_url: string | null
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          message: string
+          page_url?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          message?: string
+          page_url?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       interview_sessions: {
         Row: {
           answers: Json
@@ -341,17 +380,25 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_type: string
           avatar_url: string | null
           cgpa: number | null
           college: string | null
+          company_logo_url: string | null
+          company_name: string | null
+          company_website: string | null
           created_at: string
           degree: string | null
+          experience_level: string | null
           full_name: string | null
           github_url: string | null
           goals: string[] | null
           graduation_year: number | null
           headline: string | null
+          hiring_contact: string | null
           id: string
+          industry: string | null
+          interview_prefs: string[] | null
           is_premium: boolean
           linkedin_url: string | null
           location: string | null
@@ -361,20 +408,29 @@ export type Database = {
           preferred_locations: string[] | null
           preferred_roles: string[] | null
           skills: string[] | null
+          target_role: string | null
           updated_at: string
         }
         Insert: {
+          account_type?: string
           avatar_url?: string | null
           cgpa?: number | null
           college?: string | null
+          company_logo_url?: string | null
+          company_name?: string | null
+          company_website?: string | null
           created_at?: string
           degree?: string | null
+          experience_level?: string | null
           full_name?: string | null
           github_url?: string | null
           goals?: string[] | null
           graduation_year?: number | null
           headline?: string | null
+          hiring_contact?: string | null
           id: string
+          industry?: string | null
+          interview_prefs?: string[] | null
           is_premium?: boolean
           linkedin_url?: string | null
           location?: string | null
@@ -384,20 +440,29 @@ export type Database = {
           preferred_locations?: string[] | null
           preferred_roles?: string[] | null
           skills?: string[] | null
+          target_role?: string | null
           updated_at?: string
         }
         Update: {
+          account_type?: string
           avatar_url?: string | null
           cgpa?: number | null
           college?: string | null
+          company_logo_url?: string | null
+          company_name?: string | null
+          company_website?: string | null
           created_at?: string
           degree?: string | null
+          experience_level?: string | null
           full_name?: string | null
           github_url?: string | null
           goals?: string[] | null
           graduation_year?: number | null
           headline?: string | null
+          hiring_contact?: string | null
           id?: string
+          industry?: string | null
+          interview_prefs?: string[] | null
           is_premium?: boolean
           linkedin_url?: string | null
           location?: string | null
@@ -407,6 +472,7 @@ export type Database = {
           preferred_locations?: string[] | null
           preferred_roles?: string[] | null
           skills?: string[] | null
+          target_role?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -518,13 +584,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
       my_roles: {
         Args: never
         Returns: Database["public"]["Enums"]["app_role"][]

@@ -71,6 +71,8 @@ export const createInterviewSession = createServerFn({ method: "POST" })
     company: z.string().max(160).optional(),
     job_description: z.string().max(8000).optional(),
     count: z.number().int().min(3).max(10).default(6),
+    category: z.enum(["mixed", "hr", "technical", "basic", "role"]).default("mixed"),
+    experience_level: z.string().max(60).optional(),
   }).parse(d))
   .handler(async ({ data, context }) => {
     let role = data.role ?? "Software role";
@@ -80,12 +82,25 @@ export const createInterviewSession = createServerFn({ method: "POST" })
       const { data: job } = await context.supabase.from("jobs").select("*").eq("id", data.job_id).maybeSingle();
       if (job) { role = job.title; company = job.company; jd = `${job.description}\nSkills: ${(job.skills ?? []).join(", ")}\nRequirements: ${(job.requirements ?? []).join("; ")}`; }
     }
+    // Pull profile skills for personalization
+    const { data: profile } = await context.supabase.from("profiles").select("skills, experience_level, target_role").eq("id", context.userId).maybeSingle();
+    const skills = (profile?.skills ?? []).join(", ");
+    const exp = data.experience_level || profile?.experience_level || "entry-level";
+
+    const catInstruction = {
+      mixed: "Mix behavioral (HR), technical, and situational questions.",
+      hr: "Focus on HR / behavioral questions (motivation, teamwork, communication, culture fit). Use behavioral type.",
+      technical: "Focus on technical questions relevant to the role's tech stack and fundamentals. Use technical type.",
+      basic: "Ask basic fresher-level questions suitable for a first-time candidate (intro, strengths, coursework, simple concepts). Use behavioral/technical mix but keep them approachable.",
+      role: "Ask role-specific, deep questions that a hiring manager for this exact role would ask. Use situational and technical types.",
+    }[data.category];
+
     try {
       const model = await getModel();
       const { experimental_output } = await generateText({
         model,
-        system: "You are an experienced technical interviewer who interviews students and early-career candidates. Generate realistic interview questions tailored to the specific role. Mix behavioral, technical, and situational questions. Each question should be concise (one or two sentences). Give a brief hint that tells the candidate what the interviewer is looking for.",
-        prompt: `Generate ${data.count} mock interview questions for this role.\n\nRole: ${role}${company ? ` at ${company}` : ""}\nContext:\n${jd || "Entry-level role for a student"}\n\nReturn an array of {question, type, hint}.`,
+        system: `You are an experienced interviewer for students and early-career candidates. Generate realistic, concise interview questions (one or two sentences). Include a short hint of what the interviewer wants to hear. ${catInstruction}`,
+        prompt: `Generate ${data.count} mock interview questions.\n\nRole: ${role}${company ? ` at ${company}` : ""}\nExperience level: ${exp}\nCandidate skills: ${skills || "not provided"}\nJob context:\n${jd || "Entry-level role for a student"}\n\nReturn an array of {question, type, hint}.`,
         experimental_output: Output.object({ schema: QuestionSchema }),
       });
       const title = `${role}${company ? " — " + company : ""}`;

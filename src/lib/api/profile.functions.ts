@@ -28,6 +28,16 @@ const ProfileInput = z.object({
   portfolio_url: z.string().url().max(300).optional().nullable().or(z.literal("")),
   phone: z.string().max(40).optional().nullable(),
   onboarded: z.boolean().optional(),
+  // New fields
+  account_type: z.enum(["job_seeker", "company"]).optional(),
+  experience_level: z.string().max(60).optional().nullable(),
+  target_role: z.string().max(120).optional().nullable(),
+  interview_prefs: z.array(z.string().max(40)).max(20).optional(),
+  company_name: z.string().max(200).optional().nullable(),
+  company_logo_url: z.string().max(500).optional().nullable(),
+  company_website: z.string().max(300).optional().nullable().or(z.literal("")),
+  industry: z.string().max(120).optional().nullable(),
+  hiring_contact: z.string().max(200).optional().nullable(),
 });
 
 export const updateProfile = createServerFn({ method: "POST" })

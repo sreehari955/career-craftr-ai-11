@@ -12,7 +12,12 @@ async function assertAdmin(userId: string, passcode: string) {
   if (a.length !== b.length || !timingSafeEqual(a, b)) throw new Error("Invalid passcode");
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin.rpc("has_role", { _user_id: userId, _role: "admin" });
+  const { data, error } = await supabaseAdmin
+    .from("user_roles")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw new Error("You do not have admin access");
 }
@@ -131,7 +136,12 @@ export const adminGrantSelf = createServerFn({ method: "POST" })
       .select("id", { count: "exact", head: true })
       .eq("role", "admin");
     if ((count ?? 0) > 0) {
-      const { data: isAdmin } = await supabaseAdmin.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+      const { data: isAdmin } = await supabaseAdmin
+        .from("user_roles")
+        .select("id")
+        .eq("user_id", context.userId)
+        .eq("role", "admin")
+        .maybeSingle();
       if (!isAdmin) throw new Error("An admin already exists. Ask an existing admin to add you.");
     }
     await supabaseAdmin
